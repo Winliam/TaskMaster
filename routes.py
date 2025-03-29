@@ -1,64 +1,66 @@
-from flask import render_template, redirect, url_for, flash, request, jsonify, abort, send_file
-from flask_login import login_user, login_required, logout_user, current_user
+from flask import render_template, url_for, flash, redirect, request, jsonify, send_file, abort
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
-from datetime import datetime, timedelta
-import csv
-import io
 from app import app, db
 from models import User, Order, ClassRecord, PaymentRecord, SalaryRecord
 from forms import LoginForm, OrderForm, ClassRecordForm, PaymentRecordForm, SalaryRecordForm, EditNoteForm
+from datetime import datetime, timedelta
+import json
+import io
+import csv
+from sqlalchemy import func, desc, asc, and_, or_
 
-# Login route
-@app.route('/', methods=['GET', 'POST'])
+# Login routes
+@app.route('/')
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     
     form = LoginForm()
+    
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
+        
         if user and check_password_hash(user.password_hash, form.password.data):
             login_user(user)
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('dashboard'))
+            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         else:
-            flash('账号或密码错误', 'danger')
+            flash('登录失败，请检查用户名和密码！', 'danger')
     
-    return render_template('login.html', form=form, title='登录')
+    return render_template('login.html', title='登录', form=form)
 
-# Logout route
 @app.route('/logout')
-@login_required
 def logout():
     logout_user()
+    flash('您已成功退出！', 'info')
     return redirect(url_for('login'))
 
-# Dashboard route
+# Dashboard
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    # Get current week's start and end
-    today = datetime.now()
+    # 获取本周内的上课记录
+    today = datetime.now().date()
     start_of_week = today - timedelta(days=today.weekday())
     end_of_week = start_of_week + timedelta(days=6)
     
-    # This week's class records
     this_week_classes = ClassRecord.query.filter(
-        ClassRecord.class_time >= start_of_week,
-        ClassRecord.class_time <= end_of_week
+        ClassRecord.class_time >= start_of_week, 
+        ClassRecord.class_time <= end_of_week + timedelta(days=1)
     ).order_by(ClassRecord.class_time).all()
     
-    # This week's new orders
+    # 获取本周内的新订单
     this_week_orders = Order.query.filter(
         Order.created_at >= start_of_week,
-        Order.created_at <= end_of_week
+        Order.created_at <= end_of_week + timedelta(days=1)
     ).order_by(Order.created_at.desc()).all()
     
-    # Orders with remaining payments
+    # 获取待支付订单（剩余金额大于0）
     pending_payments = Order.query.filter(Order.remaining_amount > 0).all()
     
-    # Teachers with unpaid salaries
+    # 获取待发放工资（剩余工资大于0）
     pending_salaries = Order.query.filter(Order.remaining_salary > 0).all()
     
     # Forms for modals
@@ -69,9 +71,9 @@ def dashboard():
     
     # Populate order dropdown for class records, payments, and salaries
     orders = Order.query.all()
-    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in orders]
-    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in orders]
-    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in orders]
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in orders]
     
     return render_template('dashboard.html', 
                            title='首页',
@@ -85,10 +87,11 @@ def dashboard():
                            salary_record_form=salary_record_form,
                            edit_note_form=EditNoteForm())
 
-# Order routes
+# Order list view
 @app.route('/orders')
 @login_required
 def order_list():
+    # Get all orders
     orders = Order.query.order_by(Order.created_at.desc()).all()
     
     # Forms for modals
@@ -98,11 +101,12 @@ def order_list():
     salary_record_form = SalaryRecordForm()
     
     # Populate order dropdown for class records, payments, and salaries
-    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in orders]
-    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in orders]
-    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in orders]
+    orders_for_dropdown = Order.query.all()
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in orders_for_dropdown]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in orders_for_dropdown]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in orders_for_dropdown]
     
-    return render_template('order_list.html',
+    return render_template('order_list.html', 
                            title='订单列表',
                            orders=orders,
                            order_form=order_form,
@@ -120,8 +124,15 @@ def create_order():
         # Calculate total price
         total_price = form.total_classes.data * form.class_price.data
         
+        # 生成订单号
+        order_number = Order.generate_order_number(
+            form.student_name.data,
+            form.subject.data
+        )
+        
         # Create new order
         new_order = Order(
+            order_number=order_number,
             student_name=form.student_name.data,
             subject=form.subject.data,
             teacher_name=form.teacher_name.data,
@@ -139,7 +150,7 @@ def create_order():
         db.session.add(new_order)
         db.session.commit()
         
-        flash('订单创建成功！', 'success')
+        flash(f'订单创建成功！订单号：{order_number}', 'success')
     else:
         for field, errors in form.errors.items():
             for error in errors:
@@ -171,7 +182,7 @@ def get_order_details(order_id):
 @login_required
 def create_class_record():
     form = ClassRecordForm()
-    form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in Order.query.all()]
+    form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in Order.query.all()]
     
     if form.validate_on_submit():
         order = Order.query.get_or_404(form.order_id.data)
@@ -224,7 +235,7 @@ def create_class_record():
 @login_required
 def create_payment():
     form = PaymentRecordForm()
-    form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in Order.query.all()]
+    form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in Order.query.all()]
     
     if form.validate_on_submit():
         order = Order.query.get_or_404(form.order_id.data)
@@ -261,7 +272,7 @@ def create_payment():
 @login_required
 def create_salary():
     form = SalaryRecordForm()
-    form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in Order.query.all()]
+    form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in Order.query.all()]
     
     if form.validate_on_submit():
         order = Order.query.get_or_404(form.order_id.data)
@@ -331,9 +342,9 @@ def student_view():
     
     # Populate order dropdown for class records, payments, and salaries
     all_orders = Order.query.all()
-    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in all_orders]
     
     return render_template('student_view.html',
                            title='学生视图',
@@ -384,9 +395,9 @@ def teacher_view():
     
     # Populate order dropdown for class records, payments, and salaries
     all_orders = Order.query.all()
-    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in all_orders]
     
     return render_template('teacher_view.html',
                            title='教师视图',
@@ -543,9 +554,9 @@ def class_records_list():
     
     # Populate order dropdown for class records, payments, and salaries
     all_orders = Order.query.all()
-    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in all_orders]
     
     return render_template('class_records_list.html',
                            title='上课记录',
@@ -598,9 +609,9 @@ def payment_records_list():
     
     # Populate order dropdown for class records, payments, and salaries
     all_orders = Order.query.all()
-    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in all_orders]
     
     return render_template('payment_records_list.html',
                            title='缴费记录',
@@ -651,9 +662,9 @@ def salary_records_list():
     
     # Populate order dropdown for class records, payments, and salaries
     all_orders = Order.query.all()
-    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
-    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in all_orders]
     
     return render_template('salary_records_list.html',
                            title='工资发放记录',
@@ -670,14 +681,36 @@ def salary_records_list():
                            payment_record_form=payment_record_form,
                            salary_record_form=salary_record_form)
 
-# Financial Report
+# Financial report
 @app.route('/financial_report')
 @login_required
 def financial_report():
-    # 获取所有订单数据
-    orders = Order.query.all()
+    # Get filter parameters
+    subject = request.args.get('subject', '')
+    date_from = request.args.get('date_from', '')
+    date_to = request.args.get('date_to', '')
     
-    # 初始化总计数据
+    # Convert date strings to datetime objects if provided
+    if date_from:
+        date_from = datetime.strptime(date_from, '%Y-%m-%d')
+    else:
+        date_from = datetime(2000, 1, 1)  # Default start date
+        
+    if date_to:
+        date_to = datetime.strptime(date_to, '%Y-%m-%d')
+        date_to = date_to.replace(hour=23, minute=59, second=59)  # End of the day
+    else:
+        date_to = datetime.now()  # Default end date
+    
+    # Query orders with filters
+    query = Order.query.filter(Order.created_at.between(date_from, date_to))
+    
+    if subject:
+        query = query.filter(Order.subject == subject)
+    
+    orders = query.all()
+    
+    # Calculate totals
     total_price = sum(order.total_price for order in orders)
     total_paid = sum(order.paid_amount for order in orders)
     total_used = sum(order.used_amount for order in orders)
@@ -685,38 +718,58 @@ def financial_report():
     total_paid_salary = sum(order.paid_salary for order in orders)
     total_remaining_salary = sum(order.remaining_salary for order in orders)
     
-    # 计算利润指标
+    # Calculate profits
     gross_profit = total_price - total_payable_salary
-    net_profit = total_used - total_payable_salary
+    net_profit = total_paid - total_paid_salary
     current_balance = total_paid - total_paid_salary
     
-    # 按科目统计
+    # Group by subject for statistics
     subject_stats = []
     subjects = db.session.query(Order.subject).distinct().all()
     
     for subject_tuple in subjects:
-        subject = subject_tuple[0]
-        subject_orders = Order.query.filter_by(subject=subject).all()
+        subject_name = subject_tuple[0]
+        subject_orders = [order for order in orders if order.subject == subject_name]
+        
+        if not subject_orders:
+            continue
         
         subject_total_price = sum(order.total_price for order in subject_orders)
+        subject_paid_amount = sum(order.paid_amount for order in subject_orders)
         subject_payable_salary = sum(order.payable_salary for order in subject_orders)
-        subject_profit = subject_total_price - subject_payable_salary
+        subject_paid_salary = sum(order.paid_salary for order in subject_orders)
+        subject_gross_profit = subject_total_price - subject_payable_salary
         
-        # 计算利润率
-        profit_rate = 0
+        # Calculate profit rate
         if subject_total_price > 0:
-            profit_rate = round((subject_profit / subject_total_price) * 100, 2)
+            profit_rate = (subject_gross_profit / subject_total_price) * 100
+        else:
+            profit_rate = 0
         
         subject_stats.append({
-            'subject': subject,
+            'subject': subject_name,
             'total_price': subject_total_price,
-            'total_payable_salary': subject_payable_salary,
-            'profit': subject_profit,
+            'paid_amount': subject_paid_amount,
+            'payable_salary': subject_payable_salary,
+            'paid_salary': subject_paid_salary,
+            'gross_profit': subject_gross_profit,
             'profit_rate': profit_rate
         })
     
     # 按利润率排序
     subject_stats = sorted(subject_stats, key=lambda x: x['profit_rate'], reverse=True)
+    
+    # 创建表单实例，以便在模板中使用
+    order_form = OrderForm()
+    class_record_form = ClassRecordForm()
+    payment_record_form = PaymentRecordForm()
+    salary_record_form = SalaryRecordForm()
+    
+    # 为下拉菜单添加选项
+    all_orders = Order.query.all()
+    class_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.order_number} - {order.teacher_name} - {order.subject}") for order in all_orders]
     
     return render_template('financial_report.html',
                           title='财务报表',
@@ -730,7 +783,12 @@ def financial_report():
                           gross_profit=gross_profit,
                           net_profit=net_profit,
                           current_balance=current_balance,
-                          subject_stats=subject_stats)
+                          subject_stats=subject_stats,
+                          order_form=order_form,
+                          class_record_form=class_record_form,
+                          payment_record_form=payment_record_form,
+                          salary_record_form=salary_record_form,
+                          edit_note_form=EditNoteForm())
 
 
 # Calculate sum of selected orders
