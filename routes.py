@@ -159,6 +159,7 @@ def get_order_details(order_id):
         'teacher_name': order.teacher_name,
         'remaining_classes': order.remaining_classes,
         'class_price': order.class_price,
+        'salary_price': order.salary_price,
         'remaining_amount': order.remaining_amount,
         'payable_salary': order.payable_salary,
         'paid_salary': order.paid_salary,

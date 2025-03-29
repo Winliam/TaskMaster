@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const classPrice = parseFloat(classPriceInput.value) || 0;
             const totalPrice = totalClasses * classPrice;
             totalPriceDisplay.textContent = totalPrice.toFixed(2);
+            
+            // Set default salary price to 70% of class price if salary field exists
+            if (salaryPriceInput && salaryPriceInput.value === "") {
+                salaryPriceInput.value = (classPrice * 0.7).toFixed(2);
+            }
         }
     }
     
