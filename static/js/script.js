@@ -28,7 +28,108 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Order dropdown change - Fill form with order details
+    // 订单模糊搜索功能
+    const orderSearchInputs = document.querySelectorAll('.order-search');
+    
+    orderSearchInputs.forEach(input => {
+        const resultsContainer = input.parentElement.querySelector('.order-search-results');
+        const hiddenSelect = input.parentElement.querySelector('select');
+        
+        input.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            if (query.length < 2) {
+                resultsContainer.style.display = 'none';
+                return;
+            }
+            
+            fetch(`/search_orders?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="p-2 text-muted">无匹配结果</div>';
+                    } else {
+                        let html = '';
+                        data.forEach(order => {
+                            html += `<div class="p-2 order-result" data-id="${order.id}">${order.text}</div>`;
+                        });
+                        resultsContainer.innerHTML = html;
+                        
+                        // 添加点击事件
+                        const resultItems = resultsContainer.querySelectorAll('.order-result');
+                        resultItems.forEach(item => {
+                            item.addEventListener('click', function() {
+                                const orderId = this.getAttribute('data-id');
+                                const orderText = this.textContent;
+                                
+                                // 设置输入框和隐藏的select值
+                                input.value = orderText;
+                                hiddenSelect.value = orderId;
+                                
+                                // 触发订单详情加载
+                                loadOrderDetails(orderId, input.closest('form').id);
+                                
+                                // 隐藏结果容器
+                                resultsContainer.style.display = 'none';
+                            });
+                        });
+                    }
+                    
+                    resultsContainer.style.display = 'block';
+                })
+                .catch(error => console.error('Error:', error));
+        });
+        
+        // 点击外部时隐藏结果
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !resultsContainer.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        });
+        
+        // 样式设置
+        resultsContainer.style.cssText = 'position: absolute; z-index: 1000; background: #fff; border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto; width: 100%;';
+        
+        // 添加结果项的hover效果
+        const style = document.createElement('style');
+        style.textContent = `
+            .order-result:hover {
+                background-color: #f8f9fa;
+                cursor: pointer;
+            }
+        `;
+        document.head.appendChild(style);
+    });
+    
+    // 加载订单详情函数
+    function loadOrderDetails(orderId, formId) {
+        if (orderId) {
+            fetch(`/get_order_details/${orderId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // 根据表单类型填充数据
+                    if (formId === 'class-record-form') {
+                        document.getElementById('student_name').value = data.student_name;
+                        document.getElementById('subject').value = data.subject;
+                        document.getElementById('semester').value = data.semester;
+                        document.getElementById('teacher_name').value = data.teacher_name;
+                    } else if (formId === 'payment-form') {
+                        document.getElementById('student_name').value = data.student_name;
+                        document.getElementById('subject').value = data.subject;
+                        document.getElementById('semester').value = data.semester;
+                    } else if (formId === 'salary-form') {
+                        document.getElementById('teacher_name').value = data.teacher_name;
+                        document.getElementById('subject').value = data.subject;
+                        document.getElementById('semester').value = data.semester;
+                        // 设置最大工资金额为剩余工资
+                        document.getElementById('salary_amount').max = data.remaining_salary;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    }
+    
+    // 兼容旧的下拉框选择方式 (如果有)
     const orderSelects = document.querySelectorAll('.order-select');
     
     orderSelects.forEach(select => {
@@ -37,28 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formId = this.closest('form').id;
             
             if (orderId) {
-                fetch(`/get_order_details/${orderId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        // Fill form based on the form type
-                        if (formId === 'class-record-form') {
-                            document.getElementById('student_name').value = data.student_name;
-                            document.getElementById('subject').value = data.subject;
-                            document.getElementById('semester').value = data.semester;
-                            document.getElementById('teacher_name').value = data.teacher_name;
-                        } else if (formId === 'payment-form') {
-                            document.getElementById('student_name').value = data.student_name;
-                            document.getElementById('subject').value = data.subject;
-                            document.getElementById('semester').value = data.semester;
-                        } else if (formId === 'salary-form') {
-                            document.getElementById('teacher_name').value = data.teacher_name;
-                            document.getElementById('subject').value = data.subject;
-                            document.getElementById('semester').value = data.semester;
-                            // Set max salary amount to remaining salary
-                            document.getElementById('salary_amount').max = data.remaining_salary;
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
+                loadOrderDetails(orderId, formId);
             }
         });
     });

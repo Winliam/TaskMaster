@@ -158,6 +158,28 @@ def create_order():
     
     return redirect(request.referrer or url_for('order_list'))
 
+@app.route('/search_orders')
+@login_required
+def search_orders():
+    query = request.args.get('query', '')
+    if not query:
+        return jsonify([])
+    
+    # Search for orders matching the query
+    orders = Order.query.filter(
+        Order.order_number.ilike(f'%{query}%') | 
+        Order.student_name.ilike(f'%{query}%') |
+        Order.subject.ilike(f'%{query}%')
+    ).limit(10).all()
+    
+    # Format the results
+    results = [{
+        'id': order.id,
+        'text': f"{order.order_number} - {order.student_name} - {order.subject}"
+    } for order in orders]
+    
+    return jsonify(results)
+
 @app.route('/get_order_details/<int:order_id>')
 @login_required
 def get_order_details(order_id):
