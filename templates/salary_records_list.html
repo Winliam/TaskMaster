@@ -144,10 +144,15 @@
                 const salaryAmount = this.getAttribute('data-salary-amount');
                 const paymentTime = this.getAttribute('data-payment-time');
                 
-                document.getElementById('delete-teacher-name').textContent = teacherName;
-                document.getElementById('delete-salary-amount').textContent = salaryAmount;
-                document.getElementById('delete-payment-time').textContent = paymentTime;
-                document.getElementById('delete-salary-record-form').action = '/delete_salary_record/' + recordId;
+                const teacherNameElem = document.getElementById('delete-teacher-name');
+                const salaryAmountElem = document.getElementById('delete-salary-amount');
+                const paymentTimeElem = document.getElementById('delete-payment-time');
+                const formElem = document.getElementById('delete-salary-record-form');
+                
+                if (teacherNameElem) teacherNameElem.textContent = teacherName;
+                if (salaryAmountElem) salaryAmountElem.textContent = salaryAmount;
+                if (paymentTimeElem) paymentTimeElem.textContent = paymentTime;
+                if (formElem) formElem.action = '/delete_salary_record/' + recordId;
                 
                 // 显示确认对话框
                 const deleteModal = new bootstrap.Modal(document.getElementById('deleteSalaryRecordModal'));

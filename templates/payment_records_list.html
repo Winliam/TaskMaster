@@ -146,10 +146,15 @@
                 const paymentAmount = this.getAttribute('data-payment-amount');
                 const paymentTime = this.getAttribute('data-payment-time');
                 
-                document.getElementById('delete-student-name').textContent = studentName;
-                document.getElementById('delete-payment-amount').textContent = paymentAmount;
-                document.getElementById('delete-payment-time').textContent = paymentTime;
-                document.getElementById('delete-payment-record-form').action = '/delete_payment_record/' + recordId;
+                const studentNameElem = document.getElementById('delete-student-name');
+                const paymentAmountElem = document.getElementById('delete-payment-amount');
+                const paymentTimeElem = document.getElementById('delete-payment-time');
+                const formElem = document.getElementById('delete-payment-record-form');
+                
+                if (studentNameElem) studentNameElem.textContent = studentName;
+                if (paymentAmountElem) paymentAmountElem.textContent = paymentAmount;
+                if (paymentTimeElem) paymentTimeElem.textContent = paymentTime;
+                if (formElem) formElem.action = '/delete_payment_record/' + recordId;
                 
                 // 显示确认对话框
                 const deleteModal = new bootstrap.Modal(document.getElementById('deletePaymentRecordModal'));

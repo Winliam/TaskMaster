@@ -148,9 +148,13 @@
                 const orderNumber = this.getAttribute('data-order-number');
                 const studentName = this.getAttribute('data-student-name');
                 
-                document.getElementById('delete-order-number').textContent = orderNumber;
-                document.getElementById('delete-student-name').textContent = studentName;
-                document.getElementById('delete-order-form').action = '/delete_order/' + orderId;
+                const orderNumberElem = document.getElementById('delete-order-number');
+                const studentNameElem = document.getElementById('delete-student-name');
+                const formElem = document.getElementById('delete-order-form');
+                
+                if (orderNumberElem) orderNumberElem.textContent = orderNumber;
+                if (studentNameElem) studentNameElem.textContent = studentName;
+                if (formElem) formElem.action = '/delete_order/' + orderId;
                 
                 // 显示确认对话框
                 const deleteModal = new bootstrap.Modal(document.getElementById('deleteOrderModal'));

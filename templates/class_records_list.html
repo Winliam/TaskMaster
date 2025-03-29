@@ -116,7 +116,6 @@
         {% endif %}
     </div>
 </div>
-{% endblock %}
 
 <!-- 删除上课记录确认模态框 -->
 <div class="modal fade" id="deleteClassRecordModal" tabindex="-1" aria-labelledby="deleteClassRecordModalLabel" aria-hidden="true">
@@ -141,6 +140,7 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block scripts %}
 {{ super() }}
@@ -154,9 +154,13 @@
                 const studentName = this.getAttribute('data-student-name');
                 const classTime = this.getAttribute('data-class-time');
                 
-                document.getElementById('delete-student-name').textContent = studentName;
-                document.getElementById('delete-class-time').textContent = classTime;
-                document.getElementById('delete-class-record-form').action = '/delete_class_record/' + recordId;
+                const studentNameElem = document.getElementById('delete-student-name');
+                const classTimeElem = document.getElementById('delete-class-time');
+                const formElem = document.getElementById('delete-class-record-form');
+                
+                if (studentNameElem) studentNameElem.textContent = studentName;
+                if (classTimeElem) classTimeElem.textContent = classTime;
+                if (formElem) formElem.action = '/delete_class_record/' + recordId;
                 
                 // 显示确认对话框
                 const deleteModal = new bootstrap.Modal(document.getElementById('deleteClassRecordModal'));
