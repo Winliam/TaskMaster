@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Order form - Calculate total price automatically
     const totalClassesInput = document.getElementById('total_classes');
     const classPriceInput = document.getElementById('class_price');
+    const salaryPriceInput = document.getElementById('salary_price');
     const totalPriceDisplay = document.getElementById('total_price_display');
     
     function calculateTotalPrice() {
@@ -17,6 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (totalClassesInput && classPriceInput) {
         totalClassesInput.addEventListener('input', calculateTotalPrice);
         classPriceInput.addEventListener('input', calculateTotalPrice);
+        if (salaryPriceInput) {
+            salaryPriceInput.addEventListener('input', calculateTotalPrice);
+        }
     }
     
     // Order dropdown change - Fill form with order details

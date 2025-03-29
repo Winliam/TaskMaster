@@ -30,13 +30,17 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="total_classes" class="form-label">总课程数 *</label>
                             {{ order_form.total_classes(class="form-control", id="total_classes", required=true, min=1) }}
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="class_price" class="form-label">课程单价 *</label>
                             {{ order_form.class_price(class="form-control", id="class_price", required=true, min=0, step="0.01") }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="salary_price" class="form-label">工资单价 *</label>
+                            {{ order_form.salary_price(class="form-control", id="salary_price", required=true, min=0, step="0.01") }}
                         </div>
                     </div>
                     <div class="row mb-3">

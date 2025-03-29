@@ -17,6 +17,7 @@ class Order(db.Model):
     completed_classes = db.Column(db.Integer, default=0)
     remaining_classes = db.Column(db.Integer, default=0)
     class_price = db.Column(db.Float, default=0.0)
+    salary_price = db.Column(db.Float, default=0.0)  # 新增工资单价字段
     total_price = db.Column(db.Float, default=0.0)
     paid_amount = db.Column(db.Float, default=0.0)
     used_amount = db.Column(db.Float, default=0.0)

@@ -24,7 +24,8 @@
                         <th>课程数</th>
                         <th>已上</th>
                         <th>剩余</th>
-                        <th>单价</th>
+                        <th>课程单价</th>
+                        <th>工资单价</th>
                         <th>总价</th>
                         <th>已缴费</th>
                         <th>已用费</th>
@@ -47,6 +48,7 @@
                         <td>{{ order.completed_classes }}</td>
                         <td>{{ order.remaining_classes }}</td>
                         <td>¥{{ order.class_price }}</td>
+                        <td>¥{{ order.salary_price }}</td>
                         <td>¥{{ order.total_price }}</td>
                         <td>¥{{ order.paid_amount }}</td>
                         <td>¥{{ order.used_amount }}</td>

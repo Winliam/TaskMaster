@@ -15,6 +15,7 @@ class OrderForm(FlaskForm):
     semester = StringField('学期', validators=[DataRequired()])
     total_classes = IntegerField('总课程数', validators=[DataRequired(), NumberRange(min=1)])
     class_price = FloatField('课程单价', validators=[DataRequired(), NumberRange(min=0)])
+    salary_price = FloatField('工资单价', validators=[DataRequired(), NumberRange(min=0)])
     order_note = TextAreaField('订单备注', validators=[Optional()])
     submit = SubmitField('保存')
 

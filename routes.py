@@ -129,6 +129,7 @@ def create_order():
             total_classes=form.total_classes.data,
             remaining_classes=form.total_classes.data,
             class_price=form.class_price.data,
+            salary_price=form.salary_price.data,
             total_price=total_price,
             remaining_amount=total_price,
             payable_salary=0,  # Will be updated as classes are completed
@@ -201,9 +202,8 @@ def create_class_record():
         order.used_amount += used_class_cost
         order.remaining_amount = order.total_price - order.used_amount
         
-        # Update teacher salary
-        # Assuming teacher gets 70% of the class price
-        class_salary = order.class_price * 0.7
+        # Update teacher salary using the salary price field
+        class_salary = order.salary_price
         order.payable_salary += class_salary
         order.remaining_salary = order.payable_salary - order.paid_salary
         
@@ -668,6 +668,69 @@ def salary_records_list():
                            class_record_form=class_record_form,
                            payment_record_form=payment_record_form,
                            salary_record_form=salary_record_form)
+
+# Financial Report
+@app.route('/financial_report')
+@login_required
+def financial_report():
+    # 获取所有订单数据
+    orders = Order.query.all()
+    
+    # 初始化总计数据
+    total_price = sum(order.total_price for order in orders)
+    total_paid = sum(order.paid_amount for order in orders)
+    total_used = sum(order.used_amount for order in orders)
+    total_payable_salary = sum(order.payable_salary for order in orders)
+    total_paid_salary = sum(order.paid_salary for order in orders)
+    total_remaining_salary = sum(order.remaining_salary for order in orders)
+    
+    # 计算利润指标
+    gross_profit = total_price - total_payable_salary
+    net_profit = total_used - total_payable_salary
+    current_balance = total_paid - total_paid_salary
+    
+    # 按科目统计
+    subject_stats = []
+    subjects = db.session.query(Order.subject).distinct().all()
+    
+    for subject_tuple in subjects:
+        subject = subject_tuple[0]
+        subject_orders = Order.query.filter_by(subject=subject).all()
+        
+        subject_total_price = sum(order.total_price for order in subject_orders)
+        subject_payable_salary = sum(order.payable_salary for order in subject_orders)
+        subject_profit = subject_total_price - subject_payable_salary
+        
+        # 计算利润率
+        profit_rate = 0
+        if subject_total_price > 0:
+            profit_rate = round((subject_profit / subject_total_price) * 100, 2)
+        
+        subject_stats.append({
+            'subject': subject,
+            'total_price': subject_total_price,
+            'total_payable_salary': subject_payable_salary,
+            'profit': subject_profit,
+            'profit_rate': profit_rate
+        })
+    
+    # 按利润率排序
+    subject_stats = sorted(subject_stats, key=lambda x: x['profit_rate'], reverse=True)
+    
+    return render_template('financial_report.html',
+                          title='财务报表',
+                          today=datetime.now(),
+                          total_price=total_price,
+                          total_paid=total_paid,
+                          total_used=total_used,
+                          total_payable_salary=total_payable_salary,
+                          total_paid_salary=total_paid_salary,
+                          total_remaining_salary=total_remaining_salary,
+                          gross_profit=gross_profit,
+                          net_profit=net_profit,
+                          current_balance=current_balance,
+                          subject_stats=subject_stats)
+
 
 # Calculate sum of selected orders
 @app.route('/calculate_sum', methods=['POST'])

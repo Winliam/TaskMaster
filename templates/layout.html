@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - 精致培优教务管理系统</title>
+    <title>{{ title }} - 致优未来管理系统</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -15,7 +15,7 @@
     {% if current_user.is_authenticated %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}">精致培优教务管理系统</a>
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">致优未来管理系统</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -54,6 +54,11 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'teacher_view' %}active{% endif %}" href="{{ url_for('teacher_view') }}">
                             <i class="fas fa-chalkboard-teacher"></i> 教师视图
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'financial_report' %}active{% endif %}" href="{{ url_for('financial_report') }}">
+                            <i class="fas fa-chart-pie"></i> 财务报表
                         </a>
                     </li>
                 </ul>

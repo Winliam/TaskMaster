@@ -1,0 +1,131 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0"><i class="fas fa-chart-line"></i> 财务统计报表</h2>
+                </div>
+                <div class="card-body">
+                    <p class="lead">数据截止至：{{ today.strftime('%Y年%m月%d日 %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0"><i class="fas fa-money-bill-wave"></i> 收入概览</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>总应缴费用</h5>
+                        <h3 class="text-primary">¥{{ total_price }}</h3>
+                        <small class="text-muted">所有订单总价之和</small>
+                    </div>
+                    <div class="mb-3">
+                        <h5>总预收费用</h5>
+                        <h3 class="text-success">¥{{ total_paid }}</h3>
+                        <small class="text-muted">所有已缴费用之和</small>
+                    </div>
+                    <div class="mb-3">
+                        <h5>总已销费用</h5>
+                        <h3 class="text-info">¥{{ total_used }}</h3>
+                        <small class="text-muted">所有已销费用之和</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0"><i class="fas fa-hand-holding-usd"></i> 支出概览</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>总应付工资</h5>
+                        <h3 class="text-primary">¥{{ total_payable_salary }}</h3>
+                        <small class="text-muted">所有应付工资之和</small>
+                    </div>
+                    <div class="mb-3">
+                        <h5>总已付工资</h5>
+                        <h3 class="text-success">¥{{ total_paid_salary }}</h3>
+                        <small class="text-muted">所有已付工资之和</small>
+                    </div>
+                    <div class="mb-3">
+                        <h5>总待付工资</h5>
+                        <h3 class="text-danger">¥{{ total_remaining_salary }}</h3>
+                        <small class="text-muted">所有待付工资之和</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-chart-pie"></i> 利润概览</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5>当前总毛利润</h5>
+                        <h3 class="text-primary">¥{{ gross_profit }}</h3>
+                        <small class="text-muted">总应缴费用 - 总应付工资</small>
+                    </div>
+                    <div class="mb-3">
+                        <h5>当前总净利润</h5>
+                        <h3 class="text-success">¥{{ net_profit }}</h3>
+                        <small class="text-muted">总已销费用 - 总应付工资</small>
+                    </div>
+                    <div class="mb-3">
+                        <h5>当前余额</h5>
+                        <h3 class="text-info">¥{{ current_balance }}</h3>
+                        <small class="text-muted">总预收费用 - 总已付工资</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0"><i class="fas fa-table"></i> 科目收支明细</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>科目</th>
+                                    <th>总收入</th>
+                                    <th>总支出</th>
+                                    <th>毛利润</th>
+                                    <th>利润率</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject_stat in subject_stats %}
+                                <tr>
+                                    <td>{{ subject_stat.subject }}</td>
+                                    <td>¥{{ subject_stat.total_price }}</td>
+                                    <td>¥{{ subject_stat.total_payable_salary }}</td>
+                                    <td>¥{{ subject_stat.profit }}</td>
+                                    <td>{{ subject_stat.profit_rate }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
