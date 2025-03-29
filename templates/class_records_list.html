@@ -73,6 +73,7 @@
                         <th>地点</th>
                         <th>教学内容</th>
                         <th>备注</th>
+                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,6 +98,14 @@
                                 <i class="fas fa-edit"></i>
                             </button>
                         </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-danger delete-class-record"
+                                    data-record-id="{{ record.id }}"
+                                    data-student-name="{{ record.student_name }}"
+                                    data-class-time="{{ record.class_time.strftime('%Y-%m-%d %H:%M') }}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -107,4 +116,51 @@
         {% endif %}
     </div>
 </div>
+<!-- 删除上课记录确认模态框 -->
+<div class="modal fade" id="deleteClassRecordModal" tabindex="-1" aria-labelledby="deleteClassRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteClassRecordModalLabel">确认删除上课记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除以下上课记录吗？此操作不可恢复！</p>
+                <p><strong>学生：</strong><span id="delete-student-name"></span></p>
+                <p><strong>上课时间：</strong><span id="delete-class-time"></span></p>
+                <p class="text-danger">注意：删除上课记录将同时更新订单的已上课程数、剩余课程数、已用金额和教师工资等数据。</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <form id="delete-class-record-form" method="post" action="">
+                    <button type="submit" class="btn btn-danger">确认删除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 删除上课记录按钮点击事件
+        const deleteButtons = document.querySelectorAll('.delete-class-record');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const recordId = this.getAttribute('data-record-id');
+                const studentName = this.getAttribute('data-student-name');
+                const classTime = this.getAttribute('data-class-time');
+                
+                document.getElementById('delete-student-name').textContent = studentName;
+                document.getElementById('delete-class-time').textContent = classTime;
+                document.getElementById('delete-class-record-form').action = '/delete_class_record/' + recordId;
+                
+                // 显示确认对话框
+                const deleteModal = new bootstrap.Modal(document.getElementById('deleteClassRecordModal'));
+                deleteModal.show();
+            });
+        });
+    });
+</script>
 {% endblock %}

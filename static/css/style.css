@@ -1,9 +1,9 @@
 /* 基础样式增强 */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #e9ecef;
-    background-color: #141e30;
-    background-image: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+    color: #333;
+    background-color: #f8f9fa;
+    background-image: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     background-attachment: fixed;
 }
 
@@ -14,18 +14,22 @@ body {
 
 /* 导航栏样式 */
 .navbar {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    background-color: #1a1a2e !important;
-    border-bottom: 1px solid #38a3a5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #4e73df !important;
+    border-bottom: 1px solid #3a5fc9;
 }
 
 .navbar-brand {
     font-weight: bold;
-    color: #38a3a5 !important;
+    color: #fff !important;
+}
+
+.navbar .nav-link {
+    color: #fff !important;
 }
 
 .nav-link.active {
-    background-color: rgba(56, 163, 165, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
     border-radius: 4px;
     font-weight: bold;
 }
@@ -34,9 +38,9 @@ body {
 .card {
     border: none;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
-    background-color: #22223b;
+    background-color: #fff;
     transition: transform 0.2s ease-in-out;
 }
 
@@ -47,127 +51,129 @@ body {
 .card-header {
     border-radius: 8px 8px 0 0 !important;
     font-weight: bold;
-    background-color: #1a1a2e !important;
-    border-bottom: 1px solid #38a3a5;
+    background-color: #4e73df !important;
+    color: white;
+    border-bottom: 1px solid #3a5fc9;
 }
 
 /* 表格样式 */
 .table {
-    background-color: #22223b;
+    background-color: #fff;
     border-radius: 8px;
     overflow: hidden;
 }
 
 .table thead th {
-    background-color: #1a1a2e;
-    color: #38a3a5;
-    border-bottom: 2px solid #38a3a5;
+    background-color: #4e73df;
+    color: white;
+    border-bottom: 2px solid #3a5fc9;
 }
 
 .table tbody tr:hover {
-    background-color: rgba(56, 163, 165, 0.1);
+    background-color: rgba(78, 115, 223, 0.1);
 }
 
 /* 按钮样式 */
 .btn-primary {
-    background-color: #38a3a5;
-    border-color: #38a3a5;
+    background-color: #4e73df;
+    border-color: #4e73df;
 }
 
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-    background-color: #2c7a7b;
-    border-color: #2c7a7b;
+    background-color: #3a5fc9;
+    border-color: #3a5fc9;
 }
 
 .btn-outline-primary {
-    color: #38a3a5;
-    border-color: #38a3a5;
+    color: #4e73df;
+    border-color: #4e73df;
 }
 
 .btn-outline-primary:hover {
-    background-color: #38a3a5;
+    background-color: #4e73df;
     color: white;
 }
 
 /* 表单元素样式 */
 .form-control, .form-select {
-    background-color: #2e2e48;
-    border: 1px solid #444464;
-    color: #e9ecef;
+    background-color: #fff;
+    border: 1px solid #d1d3e2;
+    color: #333;
 }
 
 .form-control:focus, .form-select:focus {
-    background-color: #353555;
-    border-color: #38a3a5;
-    box-shadow: 0 0 0 0.25rem rgba(56, 163, 165, 0.25);
-    color: #e9ecef;
+    background-color: #fff;
+    border-color: #bac8f3;
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+    color: #333;
 }
 
 /* 模态框样式 */
 .modal-content {
-    background-color: #22223b;
-    border: 1px solid #38a3a5;
+    background-color: #fff;
+    border: 1px solid #d1d3e2;
 }
 
 .modal-header {
-    background-color: #1a1a2e;
-    border-bottom: 1px solid #38a3a5;
+    background-color: #4e73df;
+    color: white;
+    border-bottom: 1px solid #3a5fc9;
 }
 
 .modal-footer {
-    border-top: 1px solid #38a3a5;
+    border-top: 1px solid #d1d3e2;
 }
 
 /* 特殊文本颜色 */
 .text-primary {
-    color: #38a3a5 !important;
+    color: #4e73df !important;
 }
 
 .text-success {
-    color: #4cd97b !important;
+    color: #1cc88a !important;
 }
 
 .text-danger {
-    color: #ff5c5c !important;
+    color: #e74a3b !important;
 }
 
 .text-info {
-    color: #5dbef9 !important;
+    color: #36b9cc !important;
 }
 
 .text-warning {
-    color: #ffd166 !important;
+    color: #f6c23e !important;
 }
 
 /* 卡片配色方案 */
 .bg-primary {
-    background-color: #1a1a2e !important;
-    border-bottom: 2px solid #38a3a5;
+    background-color: #4e73df !important;
+    border-bottom: 2px solid #3a5fc9;
 }
 
 .bg-info {
-    background-color: #1a3a63 !important;
-    border-bottom: 2px solid #5dbef9;
+    background-color: #36b9cc !important;
+    border-bottom: 2px solid #2a9aaa;
 }
 
 .bg-success {
-    background-color: #1e4d2b !important;
-    border-bottom: 2px solid #4cd97b;
+    background-color: #1cc88a !important;
+    border-bottom: 2px solid #169a6f;
 }
 
 .bg-warning {
-    background-color: #4d3800 !important;
-    border-bottom: 2px solid #ffd166;
+    background-color: #f6c23e !important;
+    border-bottom: 2px solid #dda20a;
 }
 
 .bg-danger {
-    background-color: #571c1c !important;
-    border-bottom: 2px solid #ff5c5c;
+    background-color: #e74a3b !important;
+    border-bottom: 2px solid #be2617;
 }
 
 .bg-dark {
-    background-color: #1a1a2e !important;
-    border-bottom: 2px solid #e9ecef;
+    background-color: #5a5c69 !important;
+    border-bottom: 2px solid #373840;
 }
 
 /* 登录页面样式 */
@@ -177,14 +183,15 @@ body {
 }
 
 .login-card {
-    background-color: rgba(34, 34, 59, 0.95);
-    border-top: 4px solid #38a3a5;
+    background-color: #fff;
+    border-top: 4px solid #4e73df;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .login-logo {
     font-size: 24px;
     font-weight: bold;
-    color: #38a3a5;
+    color: #4e73df;
     margin-bottom: 20px;
     text-align: center;
 }
@@ -192,7 +199,7 @@ body {
 /* 财务统计卡片 */
 .stat-card {
     height: 100%;
-    border-left: 4px solid #38a3a5;
+    border-left: 4px solid #4e73df;
 }
 
 .stat-card h3 {
@@ -203,15 +210,15 @@ body {
 /* 进度条样式 */
 .progress {
     height: 10px;
-    background-color: #2e2e48;
+    background-color: #e9ecef;
 }
 
 .progress-bar-primary {
-    background-color: #38a3a5;
+    background-color: #4e73df;
 }
 
 /* 强调文本 */
 .highlight {
-    color: #38a3a5;
+    color: #4e73df;
     font-weight: bold;
 }

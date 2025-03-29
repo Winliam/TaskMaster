@@ -791,6 +791,91 @@ def financial_report():
                           edit_note_form=EditNoteForm())
 
 
+# 删除订单
+@app.route('/delete_order/<int:order_id>', methods=['POST'])
+@login_required
+def delete_order(order_id):
+    order = Order.query.get_or_404(order_id)
+    
+    # 检查是否有关联记录
+    if order.class_records or order.payment_records or order.salary_records:
+        flash('该订单存在关联记录，请先删除所有关联记录！', 'danger')
+        return redirect(request.referrer or url_for('order_list'))
+    
+    # 删除订单
+    db.session.delete(order)
+    db.session.commit()
+    
+    flash('订单删除成功！', 'success')
+    return redirect(request.referrer or url_for('order_list'))
+
+# 删除上课记录
+@app.route('/delete_class_record/<int:record_id>', methods=['POST'])
+@login_required
+def delete_class_record(record_id):
+    record = ClassRecord.query.get_or_404(record_id)
+    order = Order.query.get(record.order_id)
+    
+    if order:
+        # 更新订单数据
+        order.completed_classes -= 1
+        order.remaining_classes += 1
+        
+        # 更新财务数据
+        used_class_cost = order.class_price
+        order.used_amount -= used_class_cost
+        order.remaining_amount = order.total_price - order.used_amount
+        
+        # 更新教师工资
+        class_salary = order.salary_price
+        order.payable_salary -= class_salary
+        order.remaining_salary = order.payable_salary - order.paid_salary
+    
+    # 删除记录
+    db.session.delete(record)
+    db.session.commit()
+    
+    flash('上课记录删除成功！', 'success')
+    return redirect(request.referrer or url_for('class_records_list'))
+
+# 删除缴费记录
+@app.route('/delete_payment_record/<int:record_id>', methods=['POST'])
+@login_required
+def delete_payment_record(record_id):
+    record = PaymentRecord.query.get_or_404(record_id)
+    order = Order.query.get(record.order_id)
+    
+    if order:
+        # 更新订单财务数据
+        order.paid_amount -= record.payment_amount
+        order.remaining_amount = order.total_price - order.paid_amount
+    
+    # 删除记录
+    db.session.delete(record)
+    db.session.commit()
+    
+    flash('缴费记录删除成功！', 'success')
+    return redirect(request.referrer or url_for('payment_records_list'))
+
+# 删除工资发放记录
+@app.route('/delete_salary_record/<int:record_id>', methods=['POST'])
+@login_required
+def delete_salary_record(record_id):
+    record = SalaryRecord.query.get_or_404(record_id)
+    order = Order.query.get(record.order_id)
+    
+    if order:
+        # 更新订单工资数据
+        order.paid_salary -= record.salary_amount
+        order.remaining_salary = order.payable_salary - order.paid_salary
+    
+    # 删除记录
+    db.session.delete(record)
+    db.session.commit()
+    
+    flash('工资发放记录删除成功！', 'success')
+    return redirect(request.referrer or url_for('salary_records_list'))
+
 # Calculate sum of selected orders
 @app.route('/calculate_sum', methods=['POST'])
 @login_required
