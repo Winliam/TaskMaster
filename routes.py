@@ -322,6 +322,18 @@ def student_view():
     all_subjects = db.session.query(Order.subject).distinct().all()
     all_semesters = db.session.query(Order.semester).distinct().all()
     
+    # Forms for modals
+    order_form = OrderForm()
+    class_record_form = ClassRecordForm()
+    payment_record_form = PaymentRecordForm()
+    salary_record_form = SalaryRecordForm()
+    
+    # Populate order dropdown for class records, payments, and salaries
+    all_orders = Order.query.all()
+    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    
     return render_template('student_view.html',
                            title='学生视图',
                            orders=orders,
@@ -331,7 +343,11 @@ def student_view():
                            selected_student=student_name,
                            selected_subject=subject,
                            selected_semester=semester,
-                           edit_note_form=EditNoteForm())
+                           edit_note_form=EditNoteForm(),
+                           order_form=order_form,
+                           class_record_form=class_record_form,
+                           payment_record_form=payment_record_form,
+                           salary_record_form=salary_record_form)
 
 # Teacher view
 @app.route('/teacher_view')
@@ -359,6 +375,18 @@ def teacher_view():
     all_subjects = db.session.query(Order.subject).distinct().all()
     all_semesters = db.session.query(Order.semester).distinct().all()
     
+    # Forms for modals
+    order_form = OrderForm()
+    class_record_form = ClassRecordForm()
+    payment_record_form = PaymentRecordForm()
+    salary_record_form = SalaryRecordForm()
+    
+    # Populate order dropdown for class records, payments, and salaries
+    all_orders = Order.query.all()
+    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    
     return render_template('teacher_view.html',
                            title='教师视图',
                            orders=orders,
@@ -368,7 +396,11 @@ def teacher_view():
                            selected_teacher=teacher_name,
                            selected_subject=subject,
                            selected_semester=semester,
-                           edit_note_form=EditNoteForm())
+                           edit_note_form=EditNoteForm(),
+                           order_form=order_form,
+                           class_record_form=class_record_form,
+                           payment_record_form=payment_record_form,
+                           salary_record_form=salary_record_form)
 
 # Get class records for an order
 @app.route('/get_class_records/<int:order_id>')
@@ -419,6 +451,12 @@ def update_note():
         elif note_type == 'class_note':
             record = ClassRecord.query.get_or_404(note_id)
             record.note = note_text
+        elif note_type == 'payment_note':
+            record = PaymentRecord.query.get_or_404(note_id)
+            record.note = note_text
+        elif note_type == 'salary_note':
+            record = SalaryRecord.query.get_or_404(note_id)
+            record.note = note_text
         
         db.session.commit()
         flash('备注更新成功！', 'success')
@@ -465,6 +503,171 @@ def export_class_records(order_id):
         as_attachment=True,
         mimetype='text/csv'
     )
+
+# Class records list view
+@app.route('/class_records')
+@login_required
+def class_records_list():
+    # Get filter parameters
+    student_name = request.args.get('student_name', '')
+    teacher_name = request.args.get('teacher_name', '')
+    subject = request.args.get('subject', '')
+    semester = request.args.get('semester', '')
+    
+    # Query class records with filters
+    query = ClassRecord.query
+    
+    if student_name:
+        query = query.filter(ClassRecord.student_name == student_name)
+    if teacher_name:
+        query = query.filter(ClassRecord.teacher_name == teacher_name)
+    if subject:
+        query = query.filter(ClassRecord.subject == subject)
+    if semester:
+        query = query.filter(ClassRecord.semester == semester)
+    
+    class_records = query.order_by(ClassRecord.class_time.desc()).all()
+    
+    # Get unique values for filters
+    all_students = db.session.query(ClassRecord.student_name).distinct().all()
+    all_teachers = db.session.query(ClassRecord.teacher_name).distinct().all()
+    all_subjects = db.session.query(ClassRecord.subject).distinct().all()
+    all_semesters = db.session.query(ClassRecord.semester).distinct().all()
+    
+    # Forms for modals
+    order_form = OrderForm()
+    class_record_form = ClassRecordForm()
+    payment_record_form = PaymentRecordForm()
+    salary_record_form = SalaryRecordForm()
+    
+    # Populate order dropdown for class records, payments, and salaries
+    all_orders = Order.query.all()
+    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    
+    return render_template('class_records_list.html',
+                           title='上课记录',
+                           class_records=class_records,
+                           all_students=[student[0] for student in all_students],
+                           all_teachers=[teacher[0] for teacher in all_teachers],
+                           all_subjects=[subject[0] for subject in all_subjects],
+                           all_semesters=[semester[0] for semester in all_semesters],
+                           selected_student=student_name,
+                           selected_teacher=teacher_name,
+                           selected_subject=subject,
+                           selected_semester=semester,
+                           edit_note_form=EditNoteForm(),
+                           order_form=order_form,
+                           class_record_form=class_record_form,
+                           payment_record_form=payment_record_form,
+                           salary_record_form=salary_record_form)
+
+# Payment records list view
+@app.route('/payment_records')
+@login_required
+def payment_records_list():
+    # Get filter parameters
+    student_name = request.args.get('student_name', '')
+    subject = request.args.get('subject', '')
+    semester = request.args.get('semester', '')
+    
+    # Query payment records with filters
+    query = PaymentRecord.query
+    
+    if student_name:
+        query = query.filter(PaymentRecord.student_name == student_name)
+    if subject:
+        query = query.filter(PaymentRecord.subject == subject)
+    if semester:
+        query = query.filter(PaymentRecord.semester == semester)
+    
+    payment_records = query.order_by(PaymentRecord.payment_time.desc()).all()
+    
+    # Get unique values for filters
+    all_students = db.session.query(PaymentRecord.student_name).distinct().all()
+    all_subjects = db.session.query(PaymentRecord.subject).distinct().all()
+    all_semesters = db.session.query(PaymentRecord.semester).distinct().all()
+    
+    # Forms for modals
+    order_form = OrderForm()
+    class_record_form = ClassRecordForm()
+    payment_record_form = PaymentRecordForm()
+    salary_record_form = SalaryRecordForm()
+    
+    # Populate order dropdown for class records, payments, and salaries
+    all_orders = Order.query.all()
+    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    
+    return render_template('payment_records_list.html',
+                           title='缴费记录',
+                           payment_records=payment_records,
+                           all_students=[student[0] for student in all_students],
+                           all_subjects=[subject[0] for subject in all_subjects],
+                           all_semesters=[semester[0] for semester in all_semesters],
+                           selected_student=student_name,
+                           selected_subject=subject,
+                           selected_semester=semester,
+                           edit_note_form=EditNoteForm(),
+                           order_form=order_form,
+                           class_record_form=class_record_form,
+                           payment_record_form=payment_record_form,
+                           salary_record_form=salary_record_form)
+
+# Salary records list view
+@app.route('/salary_records')
+@login_required
+def salary_records_list():
+    # Get filter parameters
+    teacher_name = request.args.get('teacher_name', '')
+    subject = request.args.get('subject', '')
+    semester = request.args.get('semester', '')
+    
+    # Query salary records with filters
+    query = SalaryRecord.query
+    
+    if teacher_name:
+        query = query.filter(SalaryRecord.teacher_name == teacher_name)
+    if subject:
+        query = query.filter(SalaryRecord.subject == subject)
+    if semester:
+        query = query.filter(SalaryRecord.semester == semester)
+    
+    salary_records = query.order_by(SalaryRecord.payment_time.desc()).all()
+    
+    # Get unique values for filters
+    all_teachers = db.session.query(SalaryRecord.teacher_name).distinct().all()
+    all_subjects = db.session.query(SalaryRecord.subject).distinct().all()
+    all_semesters = db.session.query(SalaryRecord.semester).distinct().all()
+    
+    # Forms for modals
+    order_form = OrderForm()
+    class_record_form = ClassRecordForm()
+    payment_record_form = PaymentRecordForm()
+    salary_record_form = SalaryRecordForm()
+    
+    # Populate order dropdown for class records, payments, and salaries
+    all_orders = Order.query.all()
+    class_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    payment_record_form.order_id.choices = [(order.id, f"{order.id} - {order.student_name} - {order.subject}") for order in all_orders]
+    salary_record_form.order_id.choices = [(order.id, f"{order.id} - {order.teacher_name} - {order.subject}") for order in all_orders]
+    
+    return render_template('salary_records_list.html',
+                           title='工资发放记录',
+                           salary_records=salary_records,
+                           all_teachers=[teacher[0] for teacher in all_teachers],
+                           all_subjects=[subject[0] for subject in all_subjects],
+                           all_semesters=[semester[0] for semester in all_semesters],
+                           selected_teacher=teacher_name,
+                           selected_subject=subject,
+                           selected_semester=semester,
+                           edit_note_form=EditNoteForm(),
+                           order_form=order_form,
+                           class_record_form=class_record_form,
+                           payment_record_form=payment_record_form,
+                           salary_record_form=salary_record_form)
 
 # Calculate sum of selected orders
 @app.route('/calculate_sum', methods=['POST'])

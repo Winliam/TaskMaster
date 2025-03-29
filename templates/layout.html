@@ -32,6 +32,21 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'class_records_list' %}active{% endif %}" href="{{ url_for('class_records_list') }}">
+                            <i class="fas fa-book"></i> 上课记录
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'payment_records_list' %}active{% endif %}" href="{{ url_for('payment_records_list') }}">
+                            <i class="fas fa-money-bill-wave"></i> 缴费记录
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'salary_records_list' %}active{% endif %}" href="{{ url_for('salary_records_list') }}">
+                            <i class="fas fa-hand-holding-usd"></i> 工资记录
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'student_view' %}active{% endif %}" href="{{ url_for('student_view') }}">
                             <i class="fas fa-user-graduate"></i> 学生视图
                         </a>
