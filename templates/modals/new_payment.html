@@ -1,0 +1,59 @@
+<!-- New Payment Modal -->
+<div class="modal fade" id="newPaymentModal" tabindex="-1" aria-labelledby="newPaymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newPaymentModalLabel">新增缴费记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="payment-form" method="post" action="{{ url_for('create_payment') }}">
+                <div class="modal-body">
+                    {{ payment_record_form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="order_id" class="form-label">订单 *</label>
+                            {{ payment_record_form.order_id(class="form-select order-select", id="order_id", required=true) }}
+                            <small class="text-muted">选择订单后会自动填充相关信息</small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="student_name" class="form-label">学生姓名</label>
+                            {{ payment_record_form.student_name(class="form-control", id="student_name", readonly=true) }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="subject" class="form-label">科目</label>
+                            {{ payment_record_form.subject(class="form-control", id="subject", readonly=true) }}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="semester" class="form-label">学期</label>
+                            {{ payment_record_form.semester(class="form-control", id="semester", readonly=true) }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="payment_amount" class="form-label">缴费金额 *</label>
+                            {{ payment_record_form.payment_amount(class="form-control", id="payment_amount", required=true, min=0.01, step="0.01") }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="payment_time" class="form-label">缴费时间 *</label>
+                            {{ payment_record_form.payment_time(class="form-control", id="payment_time", required=true) }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">缴费方式</label>
+                        {{ payment_record_form.payment_method(class="form-control", id="payment_method") }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="note" class="form-label">备注</label>
+                        {{ payment_record_form.note(class="form-control", id="note", rows=2) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+/* Custom styles */
+body {
+    padding-top: 70px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.dashboard-section {
+    margin-bottom: 2rem;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.form-label {
+    font-weight: bold;
+}
+
+.btn-action {
+    margin-right: 0.5rem;
+}
+
+.text-overflow {
+    max-width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.note-text {
+    display: inline-block;
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.filter-card {
+    margin-bottom: 1.5rem;
+}
+
+.table th {
+    white-space: nowrap;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    .table td, .table th {
+        padding: 0.5rem;
+    }
+}

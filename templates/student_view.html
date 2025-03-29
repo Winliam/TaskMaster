@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 class="mb-4">学生视图</h2>
+
+<div class="card filter-card">
+    <div class="card-body">
+        <form method="get" action="{{ url_for('student_view') }}" class="row g-3">
+            <div class="col-md-3">
+                <label for="student_name" class="form-label">学生姓名</label>
+                <select name="student_name" id="student_name" class="form-select">
+                    <option value="">全部</option>
+                    {% for student in all_students %}
+                    <option value="{{ student }}" {% if selected_student == student %}selected{% endif %}>{{ student }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="subject" class="form-label">科目</label>
+                <select name="subject" id="subject" class="form-select">
+                    <option value="">全部</option>
+                    {% for subject in all_subjects %}
+                    <option value="{{ subject }}" {% if selected_subject == subject %}selected{% endif %}>{{ subject }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="semester" class="form-label">学期</label>
+                <select name="semester" id="semester" class="form-select">
+                    <option value="">全部</option>
+                    {% for semester in all_semesters %}
+                    <option value="{{ semester }}" {% if selected_semester == semester %}selected{% endif %}>{{ semester }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">筛选</button>
+                <a href="{{ url_for('student_view') }}" class="btn btn-outline-secondary ms-2">重置</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">学生订单信息</h5>
+        <div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="select-all">
+                <label class="form-check-label" for="select-all">全选</label>
+            </div>
+            <button type="button" id="calculate-sum" class="btn btn-outline-primary">计算选中项</button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>选择</th>
+                        <th>订单ID</th>
+                        <th>学生</th>
+                        <th>科目</th>
+                        <th>教师</th>
+                        <th>学期</th>
+                        <th>总课程数</th>
+                        <th>已上课程数</th>
+                        <th>剩余课程数</th>
+                        <th>课程单价</th>
+                        <th>已缴费用</th>
+                        <th>已销费用</th>
+                        <th>剩余费用</th>
+                        <th>上课记录</th>
+                        <th>学生备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="form-check-input order-checkbox" value="{{ order.id }}">
+                        </td>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.student_name }}</td>
+                        <td>{{ order.subject }}</td>
+                        <td>{{ order.teacher_name }}</td>
+                        <td>{{ order.semester }}</td>
+                        <td>{{ order.total_classes }}</td>
+                        <td>{{ order.completed_classes }}</td>
+                        <td>{{ order.remaining_classes }}</td>
+                        <td>¥{{ order.class_price }}</td>
+                        <td>¥{{ order.paid_amount }}</td>
+                        <td>¥{{ order.used_amount }}</td>
+                        <td>¥{{ order.remaining_amount }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info view-class-records" 
+                                    data-bs-toggle="modal" data-bs-target="#classRecordsModal"
+                                    data-order-id="{{ order.id }}">
+                                查看记录
+                            </button>
+                        </td>
+                        <td>
+                            <span class="note-text">{{ order.student_note or '' }}</span>
+                            <button type="button" class="btn btn-sm btn-link edit-note" 
+                                    data-bs-toggle="modal" data-bs-target="#editNoteModal"
+                                    data-note-id="{{ order.id }}" 
+                                    data-note-type="student_note" 
+                                    data-note-text="{{ order.student_note or '' }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">暂无符合条件的订单</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.body.setAttribute('data-view-type', 'student');
+</script>
+{% endblock %}

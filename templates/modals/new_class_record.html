@@ -1,0 +1,65 @@
+<!-- New Class Record Modal -->
+<div class="modal fade" id="newClassRecordModal" tabindex="-1" aria-labelledby="newClassRecordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newClassRecordModalLabel">新增上课记录</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="class-record-form" method="post" action="{{ url_for('create_class_record') }}">
+                <div class="modal-body">
+                    {{ class_record_form.hidden_tag() }}
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <label for="order_id" class="form-label">订单 *</label>
+                            {{ class_record_form.order_id(class="form-select order-select", id="order_id", required=true) }}
+                            <small class="text-muted">选择订单后会自动填充相关信息</small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="student_name" class="form-label">学生姓名</label>
+                            {{ class_record_form.student_name(class="form-control", id="student_name", readonly=true) }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="subject" class="form-label">科目</label>
+                            {{ class_record_form.subject(class="form-control", id="subject", readonly=true) }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="semester" class="form-label">学期</label>
+                            {{ class_record_form.semester(class="form-control", id="semester", readonly=true) }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="teacher_name" class="form-label">教师姓名</label>
+                            {{ class_record_form.teacher_name(class="form-control", id="teacher_name", readonly=true) }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="class_time" class="form-label">上课时间 *</label>
+                            {{ class_record_form.class_time(class="form-control", id="class_time", required=true) }}
+                        </div>
+                        <div class="col-md-6">
+                            <label for="location" class="form-label">地点 *</label>
+                            {{ class_record_form.location(class="form-control", id="location", required=true) }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="class_content" class="form-label">教学内容</label>
+                        {{ class_record_form.class_content(class="form-control", id="class_content", rows=3) }}
+                    </div>
+                    <div class="mb-3">
+                        <label for="note" class="form-label">备注</label>
+                        {{ class_record_form.note(class="form-control", id="note", rows=2) }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

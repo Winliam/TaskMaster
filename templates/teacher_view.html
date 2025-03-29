@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2 class="mb-4">教师视图</h2>
+
+<div class="card filter-card">
+    <div class="card-body">
+        <form method="get" action="{{ url_for('teacher_view') }}" class="row g-3">
+            <div class="col-md-3">
+                <label for="teacher_name" class="form-label">教师姓名</label>
+                <select name="teacher_name" id="teacher_name" class="form-select">
+                    <option value="">全部</option>
+                    {% for teacher in all_teachers %}
+                    <option value="{{ teacher }}" {% if selected_teacher == teacher %}selected{% endif %}>{{ teacher }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="subject" class="form-label">科目</label>
+                <select name="subject" id="subject" class="form-select">
+                    <option value="">全部</option>
+                    {% for subject in all_subjects %}
+                    <option value="{{ subject }}" {% if selected_subject == subject %}selected{% endif %}>{{ subject }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="semester" class="form-label">学期</label>
+                <select name="semester" id="semester" class="form-select">
+                    <option value="">全部</option>
+                    {% for semester in all_semesters %}
+                    <option value="{{ semester }}" {% if selected_semester == semester %}selected{% endif %}>{{ semester }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">筛选</button>
+                <a href="{{ url_for('teacher_view') }}" class="btn btn-outline-secondary ms-2">重置</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">教师订单信息</h5>
+        <div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="select-all">
+                <label class="form-check-label" for="select-all">全选</label>
+            </div>
+            <button type="button" id="calculate-sum" class="btn btn-outline-primary">计算选中项</button>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if orders %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>选择</th>
+                        <th>订单ID</th>
+                        <th>教师</th>
+                        <th>科目</th>
+                        <th>学期</th>
+                        <th>应发工资</th>
+                        <th>已发工资</th>
+                        <th>待发工资</th>
+                        <th>上课记录</th>
+                        <th>教师备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="form-check-input order-checkbox" value="{{ order.id }}">
+                        </td>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.teacher_name }}</td>
+                        <td>{{ order.subject }}</td>
+                        <td>{{ order.semester }}</td>
+                        <td>¥{{ order.payable_salary }}</td>
+                        <td>¥{{ order.paid_salary }}</td>
+                        <td>¥{{ order.remaining_salary }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-info view-class-records" 
+                                    data-bs-toggle="modal" data-bs-target="#classRecordsModal"
+                                    data-order-id="{{ order.id }}">
+                                查看记录
+                            </button>
+                        </td>
+                        <td>
+                            <span class="note-text">{{ order.teacher_note or '' }}</span>
+                            <button type="button" class="btn btn-sm btn-link edit-note" 
+                                    data-bs-toggle="modal" data-bs-target="#editNoteModal"
+                                    data-note-id="{{ order.id }}" 
+                                    data-note-type="teacher_note" 
+                                    data-note-text="{{ order.teacher_note or '' }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">暂无符合条件的订单</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.body.setAttribute('data-view-type', 'teacher');
+</script>
+{% endblock %}
