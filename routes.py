@@ -82,7 +82,8 @@ def dashboard():
                            order_form=order_form,
                            class_record_form=class_record_form,
                            payment_record_form=payment_record_form,
-                           salary_record_form=salary_record_form)
+                           salary_record_form=salary_record_form,
+                           edit_note_form=EditNoteForm())
 
 # Order routes
 @app.route('/orders')
@@ -107,7 +108,8 @@ def order_list():
                            order_form=order_form,
                            class_record_form=class_record_form,
                            payment_record_form=payment_record_form,
-                           salary_record_form=salary_record_form)
+                           salary_record_form=salary_record_form,
+                           edit_note_form=EditNoteForm())
 
 @app.route('/order/create', methods=['POST'])
 @login_required
