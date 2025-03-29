@@ -19,7 +19,7 @@ db = SQLAlchemy(model_class=Base)
 app = Flask(__name__)
 
 # Configure secret key
-app.secret_key = os.environ.get("SESSION_SECRET", "default-secret-key-for-dev")
+app.secret_key = "zhiyou-future-management-system-secret-key"
 
 # Configure the SQLite database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///education_management.db")

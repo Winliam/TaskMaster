@@ -23,18 +23,23 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         
         if user and check_password_hash(user.password_hash, form.password.data):
-            login_user(user)
+            login_user(user, remember=True)
+            app.logger.info(f"用户登录成功: {user.username}")
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('dashboard'))
         else:
+            app.logger.warning(f"登录失败: 用户名={form.username.data}")
             flash('登录失败，请检查用户名和密码！', 'danger')
     
     return render_template('login.html', title='登录', form=form)
 
 @app.route('/logout')
 def logout():
-    logout_user()
-    flash('您已成功退出！', 'info')
+    if current_user.is_authenticated:
+        username = current_user.username
+        logout_user()
+        app.logger.info(f"用户登出: {username}")
+        flash('您已成功退出！', 'info')
     return redirect(url_for('login'))
 
 # Dashboard
