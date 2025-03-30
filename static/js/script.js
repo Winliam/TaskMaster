@@ -224,11 +224,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Setup edit note buttons
+    // 设置编辑备注按钮的点击事件
     function setupEditNoteButtons() {
-        const editNoteButtons = document.querySelectorAll('.edit-note');
-
-        editNoteButtons.forEach(button => {
+        document.querySelectorAll('.edit-note').forEach(button => {
             button.addEventListener('click', function() {
                 const noteId = this.getAttribute('data-note-id');
                 const noteType = this.getAttribute('data-note-type');
@@ -241,10 +239,17 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Call this on page load to set up any existing edit note buttons
-    setupEditNoteButtons();
+    // 设置全选复选框的事件监听
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+    }
 
-    // Order checkboxes for sum calculation
+    // 设置计算汇总按钮的点击事件
     const calcSumButton = document.getElementById('calculate-sum');
     if (calcSumButton) {
         calcSumButton.addEventListener('click', function() {
@@ -270,16 +275,16 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 const modal = new bootstrap.Modal(document.getElementById('sumResultsModal'));
-                
-                // Hide both sections first
+
+                // 先隐藏两个部分
                 document.getElementById('student-sum-section').style.display = 'none';
                 document.getElementById('teacher-sum-section').style.display = 'none';
-                
+
                 if (data.view_type === 'student') {
-                    // Show student section
+                    // 显示学生部分
                     document.getElementById('student-sum-section').style.display = 'block';
-                    
-                    // Update student section content
+
+                    // 更新学生部分内容
                     document.getElementById('sum-order-numbers').textContent = data.order_numbers.join(', ');
                     document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
                     document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
@@ -288,10 +293,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('sum-total-used').textContent = data.total_used.toFixed(2);
                     document.getElementById('sum-total-remaining').textContent = data.total_remaining.toFixed(2);
                 } else {
-                    // Show teacher section
+                    // 显示教师部分
                     document.getElementById('teacher-sum-section').style.display = 'block';
-                    
-                    // Update teacher section content
+
+                    // 更新教师部分内容
                     document.getElementById('sum-teacher-order-numbers').textContent = data.order_numbers.join(', ');
                     document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('\n');
                     document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('\n');
@@ -300,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('sum-total-paid-salary').textContent = data.total_paid.toFixed(2);
                     document.getElementById('sum-total-remaining-salary').textContent = data.total_remaining.toFixed(2);
                 }
-                
+
                 modal.show();
             })
             .catch(error => {
@@ -308,110 +313,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('计算汇总时发生错误');
             });
         });
-    }derIds = Array.from(checkedOrders).map(cb => parseInt(cb.value));
-            const viewType = document.body.getAttribute('data-view-type');
-
-            if (orderIds.length === 0) {
-                alert('请至少选择一个订单');
-                return;
-            }
-
-            fetch('/calculate_sum', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    order_ids: orderIds,
-                    view_type: viewType
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const modal = new bootstrap.Modal(document.getElementById('sumResultsModal'));
-                
-                // Hide both sections first
-                document.getElementById('student-sum-section').style.display = 'none';
-                document.getElementById('teacher-sum-section').style.display = 'none';
-                
-                if (data.view_type === 'student') {
-                    // Show student section
-                    document.getElementById('student-sum-section').style.display = 'block';
-                    
-                    // Update student section content
-                    document.getElementById('sum-order-numbers').textContent = orderIds.join(', ');
-                    document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
-                    document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
-                    document.getElementById('sum-semesters').textContent = data.semesters.join('\n');
-                    document.getElementById('sum-total-paid').textContent = data.total_paid.toFixed(2);
-                    document.getElementById('sum-total-used').textContent = data.total_used.toFixed(2);
-                    document.getElementById('sum-total-remaining').textContent = data.total_remaining.toFixed(2);
-                } else {
-                    // Show teacher section
-                    document.getElementById('teacher-sum-section').style.display = 'block';
-                    
-                    // Update teacher section content
-                    document.getElementById('sum-teacher-order-numbers').textContent = orderIds.join(', ');
-                    document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('\n');
-                    document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('\n');
-                    document.getElementById('sum-teacher-semesters').textContent = data.semesters.join('\n');
-                    document.getElementById('sum-total-payable').textContent = data.total_payable.toFixed(2);
-                    document.getElementById('sum-total-paid-salary').textContent = data.total_paid.toFixed(2);
-                    document.getElementById('sum-total-remaining-salary').textContent = data.total_remaining.toFixed(2);
-                }
-                
-                modal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('计算汇总时发生错误');
-            });
-                }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Populate and show the sum results modal
-                const sumResultsModal = new bootstrap.Modal(document.getElementById('sumResultsModal'));
-
-                if (data.view_type === 'student') {
-                    document.getElementById('sum-student-names').textContent = data.student_names.join('、');
-                    document.getElementById('sum-subjects').textContent = data.subjects.join('、');
-                    document.getElementById('sum-semesters').textContent = data.semesters.join('、');
-                    document.getElementById('sum-total-paid').textContent = data.total_paid.toFixed(2);
-                    document.getElementById('sum-total-used').textContent = data.total_used.toFixed(2);
-                    document.getElementById('sum-total-remaining').textContent = data.total_remaining.toFixed(2);
-
-                    document.getElementById('student-sum-section').style.display = 'block';
-                    document.getElementById('teacher-sum-section').style.display = 'none';
-                } else {
-                    document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('、');
-                    document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('、');
-                    document.getElementById('sum-teacher-semesters').textContent = data.semesters.join('、');
-                    document.getElementById('sum-total-payable').textContent = data.total_payable.toFixed(2);
-                    document.getElementById('sum-total-paid-salary').textContent = data.total_paid.toFixed(2);
-                    document.getElementById('sum-total-remaining-salary').textContent = data.total_remaining.toFixed(2);
-
-                    document.getElementById('student-sum-section').style.display = 'none';
-                    document.getElementById('teacher-sum-section').style.display = 'block';
-                }
-
-                sumResultsModal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('计算失败，请重试');
-            });
-        });
     }
 
-    // Select all checkboxes
-    const selectAllCheckbox = document.getElementById('select-all');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
-            const orderCheckboxes = document.querySelectorAll('.order-checkbox');
-            orderCheckboxes.forEach(cb => {
-                cb.checked = selectAllCheckbox.checked;
-            });
-        });
-    }
+    // 页面加载时设置编辑备注按钮
+    setupEditNoteButtons();
 });
