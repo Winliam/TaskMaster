@@ -285,11 +285,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('student-sum-section').style.display = 'block';
 
                     // 更新学生部分内容
-                    document.getElementById('sum-order-numbers').textContent = data.order_numbers.join('\n');
+                    document.getElementById('sum-order-numbers').textContent = data.order_ids.join('\n');
                     document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
                     document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
                     document.getElementById('sum-semesters').textContent = data.semesters.join('\n');
                     document.getElementById('sum-total-paid').textContent = data.total_paid.toFixed(2);
+                    document.getElementById('sum-total-used').textContent = data.total_used.toFixed(2);
+                    document.getElementById('sum-total-remaining').textContent = data.total_remaining.toFixed(2);Fixed(2);
                     document.getElementById('sum-total-used').textContent = data.total_used.toFixed(2);
                     document.getElementById('sum-total-remaining').textContent = data.total_remaining.toFixed(2);
                 } else {
