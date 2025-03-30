@@ -1,3 +1,42 @@
+
+/* 确保下拉菜单显示在其他内容之上 */
+.dropdown-menu {
+    z-index: 1050;
+    position: absolute;
+}
+
+.custom-table-container {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: visible;
+    margin-bottom: 20px;
+}
+
+.custom-table-container table {
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+.dropdown-menu {
+    z-index: 1050;
+    position: absolute;
+}
+
+.btn-group {
+    position: static;
+}
+
+td {
+    position: relative;
+}
+
+td .dropdown-menu {
+    position: fixed;
+    transform: none !important;
+    top: auto !important;
+    left: auto !important;
+}
+
 /* 基础样式增强 */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
