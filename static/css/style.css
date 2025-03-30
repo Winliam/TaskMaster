@@ -105,8 +105,13 @@ body {
     background-color: #4e73df;
     color: white;
     border-bottom: 2px solid #3a5fc9;
-    text-align: center; /* Added: Center align table header text */
-    vertical-align: middle; /* Added: Vertically center table header text */
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    text-align: center;
+    vertical-align: middle;
 }
 
 .table tbody tr:hover {
