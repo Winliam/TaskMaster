@@ -88,13 +88,17 @@
                             </button>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-danger delete-payment-record"
-                                    data-record-id="{{ record.id }}"
-                                    data-student-name="{{ record.student_name }}"
-                                    data-payment-amount="{{ record.payment_amount }}"
-                                    data-payment-time="{{ record.payment_time.strftime('%Y-%m-%d %H:%M') }}">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <form id="delete-payment-record-form-{{ record.id }}" 
+                                  action="{{ url_for('delete_payment_record', record_id=record.id) }}" 
+                                  method="post" style="display: inline;">
+                                <button type="button" class="btn btn-sm btn-danger delete-payment-record"
+                                        data-record-id="{{ record.id }}"
+                                        data-student-name="{{ record.student_name }}"
+                                        data-payment-amount="{{ record.payment_amount }}"
+                                        data-payment-time="{{ record.payment_time.strftime('%Y-%m-%d %H:%M') }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}

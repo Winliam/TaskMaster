@@ -363,4 +363,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // 删除缴费记录按钮点击事件
+    const deletePaymentButtons = document.querySelectorAll('.delete-payment-record');
+    deletePaymentButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const recordId = this.getAttribute('data-record-id');
+            const studentName = this.getAttribute('data-student-name');
+            const paymentAmount = this.getAttribute('data-payment-amount');
+            const paymentTime = this.getAttribute('data-payment-time');
+
+            if (confirm(`确定要删除以下缴费记录吗？\n学生：${studentName}\n缴费金额：¥${paymentAmount}\n缴费时间：${paymentTime}\n\n注意：删除缴费记录将同时更新订单的已缴费金额和剩余金额等数据。`)) {
+                const form = document.getElementById(`delete-payment-record-form-${recordId}`);
+                if (form) {
+                    form.submit();
+                }
+            }
+        });
+    });
 });
