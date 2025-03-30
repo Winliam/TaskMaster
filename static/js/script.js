@@ -280,6 +280,65 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('student-sum-section').style.display = 'block';
                     
                     // Update student section content
+                    document.getElementById('sum-order-numbers').textContent = data.order_numbers.join(', ');
+                    document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
+                    document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
+                    document.getElementById('sum-semesters').textContent = data.semesters.join('\n');
+                    document.getElementById('sum-total-paid').textContent = data.total_paid.toFixed(2);
+                    document.getElementById('sum-total-used').textContent = data.total_used.toFixed(2);
+                    document.getElementById('sum-total-remaining').textContent = data.total_remaining.toFixed(2);
+                } else {
+                    // Show teacher section
+                    document.getElementById('teacher-sum-section').style.display = 'block';
+                    
+                    // Update teacher section content
+                    document.getElementById('sum-teacher-order-numbers').textContent = data.order_numbers.join(', ');
+                    document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('\n');
+                    document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('\n');
+                    document.getElementById('sum-teacher-semesters').textContent = data.semesters.join('\n');
+                    document.getElementById('sum-total-payable').textContent = data.total_payable.toFixed(2);
+                    document.getElementById('sum-total-paid-salary').textContent = data.total_paid.toFixed(2);
+                    document.getElementById('sum-total-remaining-salary').textContent = data.total_remaining.toFixed(2);
+                }
+                
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('计算汇总时发生错误');
+            });
+        });
+    }derIds = Array.from(checkedOrders).map(cb => parseInt(cb.value));
+            const viewType = document.body.getAttribute('data-view-type');
+
+            if (orderIds.length === 0) {
+                alert('请至少选择一个订单');
+                return;
+            }
+
+            fetch('/calculate_sum', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    order_ids: orderIds,
+                    view_type: viewType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const modal = new bootstrap.Modal(document.getElementById('sumResultsModal'));
+                
+                // Hide both sections first
+                document.getElementById('student-sum-section').style.display = 'none';
+                document.getElementById('teacher-sum-section').style.display = 'none';
+                
+                if (data.view_type === 'student') {
+                    // Show student section
+                    document.getElementById('student-sum-section').style.display = 'block';
+                    
+                    // Update student section content
                     document.getElementById('sum-order-numbers').textContent = orderIds.join(', ');
                     document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
                     document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
