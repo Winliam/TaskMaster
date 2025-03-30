@@ -147,7 +147,8 @@ def create_order():
             class_price=form.class_price.data,
             salary_price=form.salary_price.data,
             total_price=total_price,
-            remaining_amount=total_price,
+            remaining_amount=0,  # 初始剩余费用为0（已缴费用-已用费用）
+            payable_amount=total_price,  # 初始应缴费用等于订单总价（订单总价-已缴费用）
             payable_salary=0,  # Will be updated as classes are completed
             order_note=form.order_note.data
         )
@@ -876,7 +877,7 @@ def delete_payment_record(record_id):
     if order:
         # 更新订单财务数据
         order.paid_amount -= record.payment_amount
-        order.remaining_amount = order.total_price - order.paid_amount
+        order.remaining_amount = order.total_price - order.used_amount
 
     # 删除记录
     db.session.delete(record)
