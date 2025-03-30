@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (batchDeleteBtn) {
         batchDeleteBtn.addEventListener('click', function() {
             const selectedOrders = getSelectedOrders();
+
             if (selectedOrders.length === 0) {
                 return;
             }
@@ -134,36 +135,6 @@ document.addEventListener('DOMContentLoaded', function() {
             batchDeleteBtn.disabled = checkedBoxes.length === 0;
         }
     }
-    // 辅助函数
-    function updateSelectAllCheckbox() {
-        const selectAllCheckbox = document.getElementById('select-all-orders');
-        const orderCheckboxes = document.querySelectorAll('.order-checkbox');
-        const checkedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
-
-        if (selectAllCheckbox) {
-            selectAllCheckbox.checked = orderCheckboxes.length > 0 && 
-                                      orderCheckboxes.length === checkedCheckboxes.length;
-        }
-    }
-
-    function updateBatchDeleteButton() {
-        const checkedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
-        if (batchDeleteBtn) {
-            batchDeleteBtn.disabled = checkedCheckboxes.length === 0;
-        }
-    }
-
-    function getSelectedOrders() {
-        const selectedOrders = [];
-        document.querySelectorAll('.order-checkbox:checked').forEach(checkbox => {
-            selectedOrders.push({
-                id: checkbox.value,
-                orderNumber: checkbox.getAttribute('data-order-number')
-            });
-        });
-        return selectedOrders;
-    }
-
     // Order form - Calculate total price automatically
     const totalClassesInput = document.getElementById('total_classes');
     const classPriceInput = document.getElementById('class_price');
