@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 设置全选复选框的事件监听
+    // 全选功能
     const selectAllCheckbox = document.getElementById('select-all');
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function() {
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 const modal = new bootstrap.Modal(document.getElementById('sumResultsModal'));
 
-                // 先隐藏两个部分
+                // 隐藏所有部分
                 document.getElementById('student-sum-section').style.display = 'none';
                 document.getElementById('teacher-sum-section').style.display = 'none';
 
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('student-sum-section').style.display = 'block';
 
                     // 更新学生部分内容
-                    document.getElementById('sum-order-numbers').textContent = data.order_numbers.join(', ');
+                    document.getElementById('sum-order-numbers').textContent = data.order_ids.join(', ');
                     document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
                     document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
                     document.getElementById('sum-semesters').textContent = data.semesters.join('\n');
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('teacher-sum-section').style.display = 'block';
 
                     // 更新教师部分内容
-                    document.getElementById('sum-teacher-order-numbers').textContent = data.order_numbers.join(', ');
+                    document.getElementById('sum-teacher-order-numbers').textContent = data.order_ids.join(', ');
                     document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('\n');
                     document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('\n');
                     document.getElementById('sum-teacher-semesters').textContent = data.semesters.join('\n');
