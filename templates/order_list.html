@@ -64,6 +64,12 @@
                                     data-order-id="{{ order.id }}">
                                 上课记录
                             </button>
+                            <button type="button" class="btn btn-sm btn-danger delete-order"
+                                    data-order-id="{{ order.id }}"
+                                    data-order-number="{{ order.order_number }}"
+                                    data-student-name="{{ order.student_name }}">
+                                删除
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}

@@ -322,4 +322,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 页面加载时设置编辑备注按钮
     setupEditNoteButtons();
+
+    // 删除订单按钮点击事件
+    const deleteButtons = document.querySelectorAll('.delete-order');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const orderId = this.getAttribute('data-order-id');
+            const orderNumber = this.getAttribute('data-order-number');
+            const studentName = this.getAttribute('data-student-name');
+
+            // 先检查订单依赖关系
+            try {
+                const response = await fetch(`/check_order_dependencies/${orderId}`);
+                const data = await response.json();
+
+                if (data.has_dependencies) {
+                    let message = '该订单存在以下关联记录，无法删除：\n';
+                    if (data.class_records) message += '- 上课记录\n';
+                    if (data.payment_records) message += '- 缴费记录\n';
+                    if (data.salary_records) message += '- 工资发放记录\n';
+                    alert(message);
+                    return;
+                }
+
+                // 如果没有依赖，显示确认对话框
+                if (confirm(`确定要删除以下订单吗？\n订单号：${orderNumber}\n学生：${studentName}`)) {
+                    const deleteResponse = await fetch(`/delete_order/${orderId}`, {
+                        method: 'POST'
+                    });
+                    const deleteResult = await deleteResponse.json();
+
+                    alert(deleteResult.message);
+                    if (deleteResult.success) {
+                        window.location.reload();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('操作失败，请稍后重试');
+            }
+        });
+    });
 });

@@ -821,6 +821,26 @@ def financial_report():
 
 
 # 删除订单
+@app.route('/check_order_dependencies/<int:order_id>')
+@login_required
+def check_order_dependencies(order_id):
+    order = Order.query.get_or_404(order_id)
+    
+    dependencies = {
+        'has_dependencies': False,
+        'class_records': len(order.class_records) > 0,
+        'payment_records': len(order.payment_records) > 0,
+        'salary_records': len(order.salary_records) > 0
+    }
+    
+    dependencies['has_dependencies'] = any([
+        dependencies['class_records'],
+        dependencies['payment_records'],
+        dependencies['salary_records']
+    ])
+    
+    return jsonify(dependencies)
+
 @app.route('/delete_order/<int:order_id>', methods=['POST'])
 @login_required
 def delete_order(order_id):
@@ -828,15 +848,25 @@ def delete_order(order_id):
 
     # 检查是否有关联记录
     if order.class_records or order.payment_records or order.salary_records:
-        flash('该订单存在关联记录，请先删除所有关联记录！', 'danger')
-        return redirect(request.referrer or url_for('order_list'))
+        return jsonify({
+            'success': False,
+            'message': '该订单存在关联记录，无法删除！'
+        })
 
     # 删除订单
-    db.session.delete(order)
-    db.session.commit()
-
-    flash('订单删除成功！', 'success')
-    return redirect(request.referrer or url_for('order_list'))
+    try:
+        db.session.delete(order)
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'message': '订单删除成功！'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': f'删除失败：{str(e)}'
+        })
 
 # 删除上课记录
 @app.route('/delete_class_record/<int:record_id>', methods=['POST'])
