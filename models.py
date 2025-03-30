@@ -24,7 +24,8 @@ class Order(db.Model):
     total_price = db.Column(db.Float, default=0.0)
     paid_amount = db.Column(db.Float, default=0.0)
     used_amount = db.Column(db.Float, default=0.0)
-    remaining_amount = db.Column(db.Float, default=0.0)
+    remaining_amount = db.Column(db.Float, default=0.0)  # 已缴费用 - 已销费用
+    payable_amount = db.Column(db.Float, default=0.0)  # 订单总价 - 已缴费用
     payable_salary = db.Column(db.Float, default=0.0)
     paid_salary = db.Column(db.Float, default=0.0)
     remaining_salary = db.Column(db.Float, default=0.0)

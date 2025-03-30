@@ -71,6 +71,7 @@
                         <th>已缴费用</th>
                         <th>已销费用</th>
                         <th>剩余费用</th>
+                        <th>应缴费用</th>
                         <th>上课记录</th>
                         <th>学生备注</th>
                     </tr>
@@ -93,6 +94,7 @@
                         <td>¥{{ order.paid_amount }}</td>
                         <td>¥{{ order.used_amount }}</td>
                         <td>¥{{ order.remaining_amount }}</td>
+                        <td>¥{{ order.payable_amount }}</td>
                         <td>
                             <button type="button" class="btn btn-sm btn-info view-class-records" 
                                     data-bs-toggle="modal" data-bs-target="#classRecordsModal"
