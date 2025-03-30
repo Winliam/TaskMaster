@@ -30,85 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // 验证是否可以删除
-            fetch('/validate_batch_delete', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    order_ids: selectedOrders.map(order => order.id)
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                const validationMessageDiv = document.getElementById('delete-validation-message');
-                const confirmationMessageDiv = document.getElementById('delete-confirmation-message');
-                const confirmDeleteBtn = document.getElementById('confirm-batch-delete');
-
-                if (data.has_records) {
-                    // 有关联记录，显示错误信息
-                    validationMessageDiv.innerHTML = `
-                        <div class="alert alert-danger">
-                            <p>以下订单存在关联记录，无法删除：</p>
-                            <ul>
-                                ${data.orders_with_records.map(order => `
-                                    <li>${order.order_number}
-                                        ${order.has_class_records ? '<br>- 存在上课记录' : ''}
-                                        ${order.has_payment_records ? '<br>- 存在缴费记录' : ''}
-                                        ${order.has_salary_records ? '<br>- 存在工资记录' : ''}
-                                    </li>
-                                `).join('')}
-                            </ul>
-                        </div>`;
-                    confirmationMessageDiv.innerHTML = '';
-                    confirmDeleteBtn.style.display = 'none';
-                } else {
-                    // 可以删除，显示确认信息
-                    validationMessageDiv.innerHTML = '';
-                    confirmationMessageDiv.innerHTML = `
-                        <p>确定要删除以下订单吗？此操作不可恢复！</p>
-                        <ul>
-                            ${selectedOrders.map(order => `<li>${order.orderNumber}</li>`).join('')}
-                        </ul>`;
-                    confirmDeleteBtn.style.display = 'block';
-                }
-
-                const batchDeleteModal = new bootstrap.Modal(document.getElementById('batchDeleteModal'));
-                batchDeleteModal.show();
-            });
-        });
-    }
-
-    // 辅助函数：获取选中的订单
-    function getSelectedOrders() {
-        const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
-        return Array.from(checkedBoxes).map(checkbox => ({
-            id: checkbox.value,
-            orderNumber: checkbox.getAttribute('data-order-number')
-        }));
-    }
-
-    // 辅助函数：更新全选复选框状态
-    function updateSelectAllCheckbox() {
-        const selectAll = document.getElementById('select-all-orders');
-        const orderCheckboxes = document.querySelectorAll('.order-checkbox');
-        const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
-        
-        if (selectAll) {
-            selectAll.checked = orderCheckboxes.length > 0 && checkedBoxes.length === orderCheckboxes.length;
-        }
-    }
-
-    // 辅助函数：更新批量删除按钮状态
-    function updateBatchDeleteButton() {
-        const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
-        if (batchDeleteBtn) {
-            batchDeleteBtn.disabled = checkedBoxes.length === 0;
-        }
-    }click', function() {
-            const selectedOrders = getSelectedOrders();
-
             // 验证选中的订单是否可以删除
             fetch('/validate_batch_delete', {
                 method: 'POST',
@@ -177,7 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    // 刷新页面显示最新数据
+                    window.location.reload();
                 } else {
                     alert('删除失败：' + data.message);
                 }
@@ -185,6 +107,33 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // 辅助函数：获取选中的订单
+    function getSelectedOrders() {
+        const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
+        return Array.from(checkedBoxes).map(checkbox => ({
+            id: checkbox.value,
+            orderNumber: checkbox.getAttribute('data-order-number')
+        }));
+    }
+
+    // 辅助函数：更新全选复选框状态
+    function updateSelectAllCheckbox() {
+        const selectAll = document.getElementById('select-all-orders');
+        const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+        const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
+
+        if (selectAll) {
+            selectAll.checked = orderCheckboxes.length > 0 && checkedBoxes.length === orderCheckboxes.length;
+        }
+    }
+
+    // 辅助函数：更新批量删除按钮状态
+    function updateBatchDeleteButton() {
+        const checkedBoxes = document.querySelectorAll('.order-checkbox:checked');
+        if (batchDeleteBtn) {
+            batchDeleteBtn.disabled = checkedBoxes.length === 0;
+        }
+    }
     // 辅助函数
     function updateSelectAllCheckbox() {
         const selectAllCheckbox = document.getElementById('select-all-orders');
