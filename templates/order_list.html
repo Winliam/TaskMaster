@@ -33,7 +33,6 @@
                         <th>应发工资</th>
                         <th>已发工资</th>
                         <th>待发工资</th>
-                        <th>操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,50 +55,6 @@
                         <td>¥{{ order.payable_salary }}</td>
                         <td>¥{{ order.paid_salary }}</td>
                         <td>¥{{ order.remaining_salary }}</td>
-                        <td>
-                            <div class="btn-group dropup-auto">
-                                <button type="button" class="btn btn-sm btn-info view-class-records" 
-                                        data-bs-toggle="modal" data-bs-target="#classRecordsModal"
-                                        data-order-id="{{ order.id }}">
-                                    上课记录
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    更多
-                                </button>
-                                <div class="dropdown-menu">
-                                    <button type="button" class="dropdown-item" 
-                                            data-bs-toggle="modal" data-bs-target="#newClassRecordModal"
-                                            onclick="document.getElementById('order_id').value = {{ order.id }}; document.getElementById('order_id').dispatchEvent(new Event('change'));">
-                                        添加上课记录
-                                    </button>
-                                    <button type="button" class="dropdown-item" 
-                                            data-bs-toggle="modal" data-bs-target="#newPaymentModal"
-                                            onclick="document.getElementById('order_id').value = {{ order.id }}; document.getElementById('order_id').dispatchEvent(new Event('change'));">
-                                        添加缴费记录
-                                    </button>
-                                    <button type="button" class="dropdown-item" 
-                                            data-bs-toggle="modal" data-bs-target="#newSalaryModal"
-                                            onclick="document.getElementById('order_id').value = {{ order.id }}; document.getElementById('order_id').dispatchEvent(new Event('change'));">
-                                        添加工资发放记录
-                                    </button>
-                                    <div class="dropdown-divider"></div>
-                                    <button type="button" class="dropdown-item" 
-                                            data-bs-toggle="modal" data-bs-target="#editNoteModal"
-                                            data-note-id="{{ order.id }}" 
-                                            data-note-type="order_note" 
-                                            data-note-text="{{ order.order_note or '' }}">
-                                        编辑订单备注
-                                    </button>
-                                    <div class="dropdown-divider"></div>
-                                    <button type="button" class="dropdown-item text-danger delete-order" 
-                                            data-order-id="{{ order.id }}"
-                                            data-order-number="{{ order.order_number }}"
-                                            data-student-name="{{ order.student_name }}">
-                                        删除订单
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
