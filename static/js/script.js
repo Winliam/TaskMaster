@@ -297,10 +297,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('student-sum-section').style.display = 'block';
 
                     // 更新学生部分内容
-                    document.getElementById('sum-order-numbers').textContent = data.order_ids.join('\n');
-                    document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
-                    document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
-                    document.getElementById('sum-semesters').textContent = data.semesters.join('\n');
+                    document.getElementById('sum-order-numbers').textContent = data.order_numbers.join('\n');
+                    document.getElementById('sum-student-names').textContent = data.student_names.join('、');
+                    document.getElementById('sum-subjects').textContent = data.subjects.join('、');
+                    document.getElementById('sum-semesters').textContent = data.semesters.join('、');
                     document.getElementById('sum-total-paid').textContent = data.total_paid.toFixed(2);
                     document.getElementById('sum-total-used').textContent = data.total_used.toFixed(2);
                     document.getElementById('sum-total-remaining').textContent = data.total_remaining.toFixed(2);
@@ -309,10 +309,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('teacher-sum-section').style.display = 'block';
 
                     // 更新教师部分内容
-                    document.getElementById('sum-teacher-order-numbers').textContent = data.order_ids.join('\n');
-                    document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('\n');
-                    document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('\n');
-                    document.getElementById('sum-teacher-semesters').textContent = data.semesters.join('\n');
+                    document.getElementById('sum-teacher-order-numbers').textContent = data.order_numbers.join('\n');
+                    document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('、');
+                    document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('、');
+                    document.getElementById('sum-teacher-semesters').textContent = data.semesters.join('、');
                     document.getElementById('sum-teacher-total-payable').textContent = data.total_payable.toFixed(2);
                     document.getElementById('sum-teacher-total-paid').textContent = data.total_paid.toFixed(2);
                     document.getElementById('sum-teacher-total-remaining').textContent = data.total_remaining.toFixed(2);
