@@ -254,27 +254,24 @@ document.addEventListener('DOMContentLoaded', function() {
     if (calcSumButton) {
         calcSumButton.addEventListener('click', function() {
             const checkedOrders = document.querySelectorAll('.order-checkbox:checked');
-            const orderIds = Array.from(checkedOrders).map(cb => parseInt(cb.value));
             const viewType = document.body.getAttribute('data-view-type');
-
-            if (orderIds.length === 0) {
-                alert('请至少选择一个订单');
-                return;
-            }
 
             // 获取所有选中订单的完整订单号
             const orderNumbers = Array.from(checkedOrders).map(cb => {
                 const row = cb.closest('tr');
-                return row.querySelector('td:first-child').textContent.trim();
+                return row.querySelector('td:nth-child(2)').textContent.trim();
             });
 
+            if (orderNumbers.length === 0) {
+                alert('请至少选择一个订单');
+                return;
+            }
             fetch('/calculate_sum', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    order_ids: orderIds,
                     order_numbers: orderNumbers,
                     view_type: viewType
                 })
@@ -297,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('student-sum-section').style.display = 'block';
 
                     // 更新学生部分内容
-                    document.getElementById('sum-order-numbers').textContent = data.order_ids.join('\n');
+                    document.getElementById('sum-order-numbers').textContent = data.order_numbers.join('\n');
                     document.getElementById('sum-student-names').textContent = data.student_names.join('\n');
                     document.getElementById('sum-subjects').textContent = data.subjects.join('\n');
                     document.getElementById('sum-semesters').textContent = data.semesters.join('\n');
@@ -309,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('teacher-sum-section').style.display = 'block';
 
                     // 更新教师部分内容
-                    document.getElementById('sum-teacher-order-numbers').textContent = data.order_ids.join('\n');
+                    document.getElementById('sum-teacher-order-numbers').textContent = data.order_numbers.join('\n');
                     document.getElementById('sum-teacher-names').textContent = data.teacher_names.join('\n');
                     document.getElementById('sum-teacher-subjects').textContent = data.subjects.join('\n');
                     document.getElementById('sum-teacher-semesters').textContent = data.semesters.join('\n');

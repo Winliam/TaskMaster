@@ -1071,17 +1071,14 @@ def delete_salary_record(record_id):
 @app.route('/calculate_sum', methods=['POST'])
 @login_required
 def calculate_sum():
-    order_ids = request.json.get('order_ids', [])
     order_numbers = request.json.get('order_numbers', []) # Added this line
     view_type = request.json.get('view_type', 'student')
 
-    if not order_ids and not order_numbers: # Modified this line
+    if not order_numbers: # Modified this line
         return jsonify({'error': 'No orders selected'}), 400
 
     if order_numbers: # Added this conditional block
         orders = Order.query.filter(Order.order_number.in_(order_numbers)).all()
-    else:
-        orders = Order.query.filter(Order.id.in_(order_ids)).all()
 
     if view_type == 'student':
         # Calculate student view sums
