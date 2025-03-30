@@ -1,5 +1,138 @@
 // Wait for the document to be ready
 document.addEventListener('DOMContentLoaded', function() {
+    // 全选复选框处理
+    const selectAllCheckbox = document.getElementById('select-all-orders');
+    const batchDeleteBtn = document.getElementById('batch-delete-btn');
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBatchDeleteButton();
+        });
+    }
+
+    // 单个复选框变化时更新全选状态和删除按钮状态
+    document.querySelectorAll('.order-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateSelectAllCheckbox();
+            updateBatchDeleteButton();
+        });
+    });
+
+    // 批量删除按钮点击事件
+    if (batchDeleteBtn) {
+        batchDeleteBtn.addEventListener('click', function() {
+            const selectedOrders = getSelectedOrders();
+
+            // 验证选中的订单是否可以删除
+            fetch('/validate_batch_delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    order_ids: selectedOrders.map(order => order.id)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const validationMessageDiv = document.getElementById('delete-validation-message');
+                const confirmationMessageDiv = document.getElementById('delete-confirmation-message');
+                const confirmDeleteBtn = document.getElementById('confirm-batch-delete');
+
+                if (data.has_records) {
+                    // 有关联记录，显示错误信息
+                    validationMessageDiv.innerHTML = `
+                        <div class="alert alert-danger">
+                            <p>以下订单存在关联记录，无法删除：</p>
+                            <ul>
+                                ${data.orders_with_records.map(order => `
+                                    <li>${order.order_number}
+                                        ${order.has_class_records ? '<br>- 存在上课记录' : ''}
+                                        ${order.has_payment_records ? '<br>- 存在缴费记录' : ''}
+                                        ${order.has_salary_records ? '<br>- 存在工资记录' : ''}
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>`;
+                    confirmationMessageDiv.innerHTML = '';
+                    confirmDeleteBtn.style.display = 'none';
+                } else {
+                    // 可以删除，显示确认信息
+                    validationMessageDiv.innerHTML = '';
+                    confirmationMessageDiv.innerHTML = `
+                        <p>确定要删除以下订单吗？此操作不可恢复！</p>
+                        <ul>
+                            ${selectedOrders.map(order => `<li>${order.orderNumber}</li>`).join('')}
+                        </ul>`;
+                    confirmDeleteBtn.style.display = 'block';
+                }
+
+                const batchDeleteModal = new bootstrap.Modal(document.getElementById('batchDeleteModal'));
+                batchDeleteModal.show();
+            });
+        });
+    }
+
+    // 确认批量删除按钮点击事件
+    const confirmBatchDeleteBtn = document.getElementById('confirm-batch-delete');
+    if (confirmBatchDeleteBtn) {
+        confirmBatchDeleteBtn.addEventListener('click', function() {
+            const selectedOrders = getSelectedOrders();
+
+            fetch('/batch_delete_orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    order_ids: selectedOrders.map(order => order.id)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('删除失败：' + data.message);
+                }
+            });
+        });
+    }
+
+    // 辅助函数
+    function updateSelectAllCheckbox() {
+        const selectAllCheckbox = document.getElementById('select-all-orders');
+        const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+        const checkedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = orderCheckboxes.length > 0 && 
+                                      orderCheckboxes.length === checkedCheckboxes.length;
+        }
+    }
+
+    function updateBatchDeleteButton() {
+        const checkedCheckboxes = document.querySelectorAll('.order-checkbox:checked');
+        if (batchDeleteBtn) {
+            batchDeleteBtn.disabled = checkedCheckboxes.length === 0;
+        }
+    }
+
+    function getSelectedOrders() {
+        const selectedOrders = [];
+        document.querySelectorAll('.order-checkbox:checked').forEach(checkbox => {
+            selectedOrders.push({
+                id: checkbox.value,
+                orderNumber: checkbox.getAttribute('data-order-number')
+            });
+        });
+        return selectedOrders;
+    }
+
     // Order form - Calculate total price automatically
     const totalClassesInput = document.getElementById('total_classes');
     const classPriceInput = document.getElementById('class_price');
@@ -239,15 +372,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 为全选复选框添加事件监听
-    const selectAllCheckbox = document.getElementById('select-all');
-    if (selectAllCheckbox) {
-        selectAllCheckbox.addEventListener('change', function() {
+    // 为全选复选框添加事件监听 (原代码中已存在，此处保留并与新代码整合)
+    const selectAllCheckbox2 = document.getElementById('select-all');
+    if (selectAllCheckbox2) {
+        selectAllCheckbox2.addEventListener('change', function() {
             document.querySelectorAll('.order-checkbox').forEach(checkbox => {
                 checkbox.checked = this.checked;
             });
         });
     }
+
 
     // 设置计算汇总按钮的点击事件
     const calcSumButton = document.getElementById('calculate-sum');
