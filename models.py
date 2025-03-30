@@ -4,14 +4,19 @@ from datetime import datetime
 import re
 import pypinyin
 
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
 
+
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    order_number = db.Column(db.String(50), unique=True, nullable=False, default="")
+    order_number = db.Column(db.String(50),
+                             unique=True,
+                             nullable=False,
+                             default="")
     student_name = db.Column(db.String(100), nullable=False)
     subject = db.Column(db.String(100), nullable=False)
     teacher_name = db.Column(db.String(100), nullable=False)
@@ -33,12 +38,16 @@ class Order(db.Model):
     teacher_note = db.Column(db.Text, nullable=True)
     student_note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
-    
+
     # Relationships
     class_records = db.relationship('ClassRecord', backref='order', lazy=True)
-    payment_records = db.relationship('PaymentRecord', backref='order', lazy=True)
-    salary_records = db.relationship('SalaryRecord', backref='order', lazy=True)
-    
+    payment_records = db.relationship('PaymentRecord',
+                                      backref='order',
+                                      lazy=True)
+    salary_records = db.relationship('SalaryRecord',
+                                     backref='order',
+                                     lazy=True)
+
     @staticmethod
     def generate_order_number(student_name, subject):
         """生成订单号：日期-学生简称-科目简称-递增序号
@@ -46,48 +55,51 @@ class Order(db.Model):
         """
         now = datetime.now()
         date_part = now.strftime("%y%m%d")
-        
+
         # 学生简称：取英文名或中文拼音首字母
         if re.search(r'[\u4e00-\u9fa5]', student_name):  # 包含中文字符
             # 获取中文拼音首字母
-            first_letters = pypinyin.lazy_pinyin(student_name, style=pypinyin.FIRST_LETTER)
+            first_letters = pypinyin.lazy_pinyin(student_name,
+                                                 style=pypinyin.FIRST_LETTER)
             student_part = ''.join(first_letters)
         else:
             # 英文名取首字母或首几个字母
             student_part = ''.join([c for c in student_name if c.isalpha()])
-        
+
         student_part = student_part[:3].upper()
-        
+
         # 科目简称：科目名称前4个字母，大写
         if re.search(r'[\u4e00-\u9fa5]', subject):  # 包含中文字符
             # 获取中文拼音首字母
-            first_letters = pypinyin.lazy_pinyin(subject, style=pypinyin.FIRST_LETTER)
+            first_letters = pypinyin.lazy_pinyin(subject,
+                                                 style=pypinyin.FIRST_LETTER)
             subject_part = ''.join(first_letters)
         else:
             # 英文科目取首字母或首几个字母
             subject_part = ''.join([c for c in subject if c.isalpha()])
-        
+
         subject_part = subject_part[:4].upper()
-        
+
         # 设置一个基础序号
         base_num = 1
-        
+
         # 查找今天已有的该学生该科目的订单
         today_start = datetime.combine(now.date(), datetime.min.time())
         existing_orders = Order.query.filter(
             Order.created_at >= today_start,
-            Order.student_name == student_name,
-            Order.subject == subject
+            # Order.student_name == student_name,
+            # Order.subject == subject
         ).all()
-        
+
         # 如果已有订单，则序号递增
         if existing_orders:
             base_num += len(existing_orders)
-        
+
         # 格式化为四位数字
         number_part = f"{base_num:04d}"
-        
+
         return f"{date_part}-{student_part}-{subject_part}-{number_part}"
+
 
 class ClassRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -102,6 +114,7 @@ class ClassRecord(db.Model):
     note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
 
+
 class PaymentRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
@@ -113,6 +126,7 @@ class PaymentRecord(db.Model):
     payment_method = db.Column(db.String(100), nullable=True)
     note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.now)
+
 
 class SalaryRecord(db.Model):
     id = db.Column(db.Integer, primary_key=True)

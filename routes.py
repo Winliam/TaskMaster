@@ -1037,6 +1037,7 @@ def delete_payment_record(record_id):
         # 更新订单财务数据
         order.paid_amount -= record.payment_amount
         order.remaining_amount = order.paid_amount - order.used_amount
+        order.payable_amount = order.total_price - order.paid_amount
 
     # 删除记录
     db.session.delete(record)
