@@ -108,15 +108,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     // 根据表单类型填充数据
-                    if (formId === 'class-record-form') {
-                        document.getElementById('student_name').value = data.student_name;
-                        document.getElementById('subject').value = data.subject;
-                        document.getElementById('semester').value = data.semester;
-                        document.getElementById('teacher_name').value = data.teacher_name;
-                    } else if (formId === 'payment-form') {
-                        document.getElementById('student_name').value = data.student_name;
-                        document.getElementById('subject').value = data.subject;
-                        document.getElementById('semester').value = data.semester;
+                    if (formId === 'class-record-form' || formId === 'newClassRecordModal') {
+                        document.querySelector('#newClassRecordModal #student_name').value = data.student_name;
+                        document.querySelector('#newClassRecordModal #subject').value = data.subject;
+                        document.querySelector('#newClassRecordModal #semester').value = data.semester;
+                        document.querySelector('#newClassRecordModal #teacher_name').value = data.teacher_name;
+                    } else if (formId === 'payment-form' || formId === 'newPaymentModal') {
+                        document.querySelector('#newPaymentModal #student_name').value = data.student_name;
+                        document.querySelector('#newPaymentModal #subject').value = data.subject;
+                        document.querySelector('#newPaymentModal #semester').value = data.semester;
                     } else if (formId === 'salary-form' || formId === 'newSalaryModal') {
                         document.querySelector('#newSalaryModal #teacher_name').value = data.teacher_name;
                         document.querySelector('#newSalaryModal #subject').value = data.subject;
