@@ -1072,12 +1072,16 @@ def delete_salary_record(record_id):
 @login_required
 def calculate_sum():
     order_ids = request.json.get('order_ids', [])
+    order_numbers = request.json.get('order_numbers', []) # Added this line
     view_type = request.json.get('view_type', 'student')
 
-    if not order_ids:
+    if not order_ids and not order_numbers: # Modified this line
         return jsonify({'error': 'No orders selected'}), 400
 
-    orders = Order.query.filter(Order.id.in_(order_ids)).all()
+    if order_numbers: # Added this conditional block
+        orders = Order.query.filter(Order.order_number.in_(order_numbers)).all()
+    else:
+        orders = Order.query.filter(Order.id.in_(order_ids)).all()
 
     if view_type == 'student':
         # Calculate student view sums
@@ -1101,7 +1105,7 @@ def calculate_sum():
             'student_names': list(student_names),
             'subjects': list(subjects),
             'semesters': list(semesters),
-            'order_ids': order_ids
+            'order_numbers': order_numbers # Changed to order_numbers
         })
     else:
         # Calculate teacher view sums
@@ -1122,5 +1126,5 @@ def calculate_sum():
             'teacher_names': list(teacher_names),
             'subjects': list(subjects),
             'semesters': list(semesters),
-            'order_ids': order_ids
+            'order_numbers': order_numbers # Changed to order_numbers
         })

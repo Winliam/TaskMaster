@@ -262,6 +262,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            // 获取所有选中订单的完整订单号
+            const orderNumbers = Array.from(checkedOrders).map(cb => {
+                const row = cb.closest('tr');
+                return row.querySelector('td:first-child').textContent.trim();
+            });
+
             fetch('/calculate_sum', {
                 method: 'POST',
                 headers: {
@@ -269,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     order_ids: orderIds,
+                    order_numbers: orderNumbers,
                     view_type: viewType
                 })
             })
